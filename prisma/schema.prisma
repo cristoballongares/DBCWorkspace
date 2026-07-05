@@ -1,0 +1,301 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+// ── Auth y usuarios ──────────────────────────────────────────
+
+enum Role {
+  ADMIN
+  MEMBER
+}
+
+model User {
+  id           String   @id @default(cuid())
+  email        String   @unique
+  name         String
+  role         Role     @default(MEMBER)
+  passwordHash String?
+  image        String?
+  createdAt    DateTime @default(now())
+
+  invitationsSent    Invitation[]        @relation("InvitedBy")
+  solutions          Solution[]
+  editorials         Editorial[]
+  contestSubmissions ContestSubmission[]
+  notebookEntries    NotebookEntry[]
+  changeLogs         ChangeLog[]
+  trainingSessions   TrainingSession[]
+  postMortemNotes    ContestPostMortem[]
+
+  @@index([role])
+}
+
+model Invitation {
+  id          String    @id @default(cuid())
+  email       String
+  token       String    @unique
+  role        Role      @default(MEMBER)
+  invitedById String
+  invitedBy   User      @relation("InvitedBy", fields: [invitedById], references: [id])
+  acceptedAt  DateTime?
+  expiresAt   DateTime
+  createdAt   DateTime  @default(now())
+
+  @@index([token])
+  @@index([email])
+}
+
+// ── Problemas y contenido ────────────────────────────────────
+
+enum ProblemStatus {
+  UNSOLVED
+  SOLVED_INDIVIDUAL
+  SOLVED_TEAM
+}
+
+enum Difficulty {
+  EASY
+  MEDIUM
+  HARD
+  UNRATED
+}
+
+model Problem {
+  id             String        @id @default(cuid())
+  title          String
+  source         String?
+  url            String?
+  difficulty     Difficulty    @default(UNRATED)
+  status         ProblemStatus @default(UNSOLVED)
+  statementNotes String?
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+
+  tags            ProblemTag[]
+  solutions       Solution[]
+  editorial       Editorial?
+  contestProblems ContestProblem[]
+  changeLogs      ChangeLog[]
+
+  @@index([status])
+  @@index([difficulty])
+}
+
+model Tag {
+  id       String       @id @default(cuid())
+  name     String       @unique
+  problems ProblemTag[]
+}
+
+model ProblemTag {
+  problemId String
+  tagId     String
+  problem   Problem @relation(fields: [problemId], references: [id], onDelete: Cascade)
+  tag       Tag     @relation(fields: [tagId], references: [id], onDelete: Cascade)
+
+  @@id([problemId, tagId])
+  @@index([tagId])
+}
+
+model Solution {
+  id           String   @id @default(cuid())
+  problemId    String
+  authorId     String
+  content      String
+  reasoning    String?
+  timeSpentMin Int?
+  attemptCount Int      @default(1)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  problem    Problem     @relation(fields: [problemId], references: [id], onDelete: Cascade)
+  author     User        @relation(fields: [authorId], references: [id])
+  changeLogs ChangeLog[]
+
+  @@index([problemId])
+  @@index([authorId])
+}
+
+model Editorial {
+  id        String   @id @default(cuid())
+  problemId String   @unique
+  content   String
+  authorId  String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  problem    Problem     @relation(fields: [problemId], references: [id], onDelete: Cascade)
+  author     User        @relation(fields: [authorId], references: [id])
+  changeLogs ChangeLog[]
+
+  @@index([problemId])
+}
+
+// ── Contest / simulacro ICPC ─────────────────────────────────
+
+enum ContestStatus {
+  SCHEDULED
+  RUNNING
+  FROZEN
+  FINISHED
+}
+
+model Contest {
+  id          String        @id @default(cuid())
+  name        String
+  startTime   DateTime
+  durationMin Int           @default(300)
+  penaltyMin  Int           @default(20)
+  freezeMin   Int           @default(60)
+  status      ContestStatus @default(SCHEDULED)
+  createdAt   DateTime      @default(now())
+
+  problems    ContestProblem[]
+  submissions ContestSubmission[]
+  postMortem  ContestPostMortem?
+
+  @@index([status])
+}
+
+model ContestProblem {
+  id        String @id @default(cuid())
+  contestId String
+  problemId String
+  label     String
+  order     Int
+
+  contest     Contest             @relation(fields: [contestId], references: [id], onDelete: Cascade)
+  problem     Problem             @relation(fields: [problemId], references: [id])
+  submissions ContestSubmission[]
+
+  @@unique([contestId, label])
+  @@index([contestId])
+}
+
+enum SubmissionVerdict {
+  PENDING
+  AC
+  WA
+  TLE
+  RE
+  CE
+  OTHER
+}
+
+model ContestSubmission {
+  id               String            @id @default(cuid())
+  contestId        String
+  contestProblemId String
+  userId           String
+  verdict          SubmissionVerdict @default(PENDING)
+  submittedAt      DateTime          @default(now())
+  minutesFromStart Int
+
+  contest        Contest        @relation(fields: [contestId], references: [id], onDelete: Cascade)
+  contestProblem ContestProblem @relation(fields: [contestProblemId], references: [id], onDelete: Cascade)
+  user           User           @relation(fields: [userId], references: [id])
+
+  @@index([contestId, userId])
+  @@index([contestProblemId])
+}
+
+model ContestPostMortem {
+  id          String   @id @default(cuid())
+  contestId   String   @unique
+  authorId    String
+  whatWorked  String?
+  whatFailed  String?
+  actionItems String?
+  createdAt   DateTime @default(now())
+
+  contest Contest @relation(fields: [contestId], references: [id], onDelete: Cascade)
+  author  User    @relation(fields: [authorId], references: [id])
+}
+
+// ── Entrenamiento y calendario ────────────────────────────────
+
+model TrainingCalendar {
+  id        String   @id @default(cuid())
+  weekStart DateTime
+  planNotes String?
+  createdAt DateTime @default(now())
+
+  sessions TrainingSession[]
+
+  @@index([weekStart])
+}
+
+model TrainingSession {
+  id              String   @id @default(cuid())
+  calendarId      String
+  userId          String
+  date            DateTime
+  plannedProblems Int?
+  actualProblems  Int?
+  notes           String?
+
+  calendar TrainingCalendar @relation(fields: [calendarId], references: [id], onDelete: Cascade)
+  user     User             @relation(fields: [userId], references: [id])
+
+  @@index([calendarId])
+  @@index([userId, date])
+}
+
+// ── Notebook ───────────────────────────────────────────────
+
+model NotebookEntry {
+  id             String   @id @default(cuid())
+  slug           String   @unique
+  title          String
+  category       String
+  content        String
+  commonPitfalls String?
+  authorId       String
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  author     User        @relation(fields: [authorId], references: [id])
+  changeLogs ChangeLog[]
+
+  @@index([category])
+}
+
+// ── Auditoria ─────────────────────────────────────────────────
+
+enum ChangeLogEntity {
+  PROBLEM
+  SOLUTION
+  EDITORIAL
+  NOTEBOOK_ENTRY
+}
+
+model ChangeLog {
+  id          String          @id @default(cuid())
+  entityType  ChangeLogEntity
+  editorId    String
+  diffSummary String
+  createdAt   DateTime        @default(now())
+
+  editor User @relation(fields: [editorId], references: [id])
+
+  problemId String?
+  problem   Problem? @relation(fields: [problemId], references: [id], onDelete: Cascade)
+
+  solutionId String?
+  solution   Solution? @relation(fields: [solutionId], references: [id], onDelete: Cascade)
+
+  editorialId String?
+  editorial   Editorial? @relation(fields: [editorialId], references: [id], onDelete: Cascade)
+
+  notebookEntryId String?
+  notebookEntry   NotebookEntry? @relation(fields: [notebookEntryId], references: [id], onDelete: Cascade)
+
+  @@index([entityType])
+  @@index([editorId])
+}
