@@ -32,6 +32,7 @@ model User {
   changeLogs         ChangeLog[]
   trainingSessions   TrainingSession[]
   postMortemNotes    ContestPostMortem[]
+  ratingSnapshots    RatingSnapshot[]
 
   @@index([role])
 }
@@ -156,9 +157,10 @@ model Contest {
   status      ContestStatus @default(SCHEDULED)
   createdAt   DateTime      @default(now())
 
-  problems    ContestProblem[]
-  submissions ContestSubmission[]
-  postMortem  ContestPostMortem?
+  problems        ContestProblem[]
+  submissions     ContestSubmission[]
+  postMortem      ContestPostMortem?
+  ratingSnapshots RatingSnapshot[]
 
   @@index([status])
 }
@@ -216,6 +218,23 @@ model ContestPostMortem {
 
   contest Contest @relation(fields: [contestId], references: [id], onDelete: Cascade)
   author  User    @relation(fields: [authorId], references: [id])
+}
+
+// Un snapshot por (user, contest) cerrado: percentil de tiempo de resolucion
+// ponderado por dificultad y penalizado por intentos. Se recalcula solo al
+// finalizar un contest; no es un rating Elo incremental.
+model RatingSnapshot {
+  id        String   @id @default(cuid())
+  userId    String
+  contestId String
+  value     Float
+  createdAt DateTime @default(now())
+
+  user    User    @relation(fields: [userId], references: [id])
+  contest Contest @relation(fields: [contestId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, contestId])
+  @@index([userId])
 }
 
 // ── Entrenamiento y calendario ────────────────────────────────

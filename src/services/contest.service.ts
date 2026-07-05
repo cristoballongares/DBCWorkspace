@@ -1,6 +1,7 @@
 import { prisma } from '@/lib/prisma';
 import type { createContestSchema, updateContestSchema } from '@/lib/validations/contest';
 import type { z } from 'zod';
+import { recalculateRatingForContest } from './rating.service';
 
 type CreateContestInput = z.infer<typeof createContestSchema>;
 type UpdateContestInput = z.infer<typeof updateContestSchema>;
@@ -48,11 +49,17 @@ export async function createContest(input: CreateContestInput) {
 }
 
 export async function updateContest(id: string, input: UpdateContestInput) {
-  return prisma.contest.update({
+  const contest = await prisma.contest.update({
     where: { id },
     data: input,
     include: contestInclude,
   });
+
+  if (input.status === 'FINISHED') {
+    await recalculateRatingForContest(id);
+  }
+
+  return contest;
 }
 
 export async function deleteContest(id: string) {
