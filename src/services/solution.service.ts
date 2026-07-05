@@ -1,6 +1,7 @@
 import { prisma } from '@/lib/prisma';
 import type { createSolutionSchema, updateSolutionSchema } from '@/lib/validations/solution';
 import type { z } from 'zod';
+import { logChange } from './changelog.service';
 
 type CreateSolutionInput = z.infer<typeof createSolutionSchema>;
 type UpdateSolutionInput = z.infer<typeof updateSolutionSchema>;
@@ -43,10 +44,18 @@ export async function createSolution(
 
   await syncProblemStatus(problemId);
 
+  await logChange({
+    entityType: 'SOLUTION',
+    editorId: authorId,
+    diffSummary: `Solucion creada en problema ${problemId}`,
+    problemId,
+    solutionId: solution.id,
+  });
+
   return solution;
 }
 
-export async function updateSolution(id: string, input: UpdateSolutionInput) {
+export async function updateSolution(id: string, input: UpdateSolutionInput, editorId: string) {
   const data: Record<string, unknown> = {};
 
   if (input.content !== undefined) data.content = input.content;
@@ -54,16 +63,34 @@ export async function updateSolution(id: string, input: UpdateSolutionInput) {
   if (input.timeSpentMin !== undefined) data.timeSpentMin = input.timeSpentMin;
   if (input.attemptCount !== undefined) data.attemptCount = input.attemptCount;
 
-  return prisma.solution.update({
+  const solution = await prisma.solution.update({
     where: { id },
     data,
     include: solutionInclude,
   });
+
+  await logChange({
+    entityType: 'SOLUTION',
+    editorId,
+    diffSummary: `Solucion actualizada en problema ${solution.problemId}`,
+    problemId: solution.problemId,
+    solutionId: solution.id,
+  });
+
+  return solution;
 }
 
-export async function deleteSolution(id: string) {
+export async function deleteSolution(id: string, editorId: string) {
   const solution = await prisma.solution.delete({ where: { id } });
   await syncProblemStatus(solution.problemId);
+
+  await logChange({
+    entityType: 'SOLUTION',
+    editorId,
+    diffSummary: `Solucion eliminada en problema ${solution.problemId}`,
+    problemId: solution.problemId,
+  });
+
   return solution;
 }
 

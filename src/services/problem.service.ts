@@ -2,6 +2,7 @@ import { prisma } from '@/lib/prisma';
 import type { Difficulty, ProblemStatus } from '@prisma/client';
 import type { createProblemSchema, updateProblemSchema } from '@/lib/validations/problem';
 import type { z } from 'zod';
+import { logChange } from './changelog.service';
 
 type CreateProblemInput = z.infer<typeof createProblemSchema>;
 type UpdateProblemInput = z.infer<typeof updateProblemSchema>;
@@ -56,10 +57,10 @@ export async function getProblem(id: string) {
   });
 }
 
-export async function createProblem(input: CreateProblemInput) {
+export async function createProblem(input: CreateProblemInput, editorId: string) {
   const tagIds = await resolveTagIds(input.tagNames);
 
-  return prisma.problem.create({
+  const problem = await prisma.problem.create({
     data: {
       title: input.title,
       source: input.source || null,
@@ -73,9 +74,18 @@ export async function createProblem(input: CreateProblemInput) {
     },
     include: problemInclude,
   });
+
+  await logChange({
+    entityType: 'PROBLEM',
+    editorId,
+    diffSummary: `Problema creado: ${problem.title}`,
+    problemId: problem.id,
+  });
+
+  return problem;
 }
 
-export async function updateProblem(id: string, input: UpdateProblemInput) {
+export async function updateProblem(id: string, input: UpdateProblemInput, editorId: string) {
   const data: Record<string, unknown> = {};
 
   if (input.title !== undefined) data.title = input.title;
@@ -93,13 +103,30 @@ export async function updateProblem(id: string, input: UpdateProblemInput) {
     };
   }
 
-  return prisma.problem.update({
+  const problem = await prisma.problem.update({
     where: { id },
     data,
     include: problemInclude,
   });
+
+  await logChange({
+    entityType: 'PROBLEM',
+    editorId,
+    diffSummary: `Problema actualizado: ${problem.title}`,
+    problemId: problem.id,
+  });
+
+  return problem;
 }
 
-export async function deleteProblem(id: string) {
-  return prisma.problem.delete({ where: { id } });
+export async function deleteProblem(id: string, editorId: string) {
+  const problem = await prisma.problem.delete({ where: { id } });
+
+  await logChange({
+    entityType: 'PROBLEM',
+    editorId,
+    diffSummary: `Problema eliminado: ${problem.title}`,
+  });
+
+  return problem;
 }

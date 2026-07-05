@@ -37,8 +37,8 @@ export async function PUT(request: Request, { params }: { params: { id: string }
 
 export async function DELETE(_request: Request, { params }: { params: { id: string } }) {
   try {
-    await requireSession();
-    await deleteEditorial(params.id);
+    const session = await requireSession();
+    await deleteEditorial(params.id, session.user.id);
     return NextResponse.json({ ok: true });
   } catch {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });

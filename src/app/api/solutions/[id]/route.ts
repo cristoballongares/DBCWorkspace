@@ -20,7 +20,7 @@ export async function GET(_request: Request, { params }: { params: { id: string 
 
 export async function PATCH(request: Request, { params }: { params: { id: string } }) {
   try {
-    await requireSession();
+    const session = await requireSession();
     const body = await request.json();
     const parsed = updateSolutionSchema.safeParse(body);
 
@@ -28,7 +28,7 @@ export async function PATCH(request: Request, { params }: { params: { id: string
       return NextResponse.json({ error: parsed.error.flatten() }, { status: 400 });
     }
 
-    const solution = await updateSolution(params.id, parsed.data);
+    const solution = await updateSolution(params.id, parsed.data, session.user.id);
     return NextResponse.json(solution);
   } catch {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -37,8 +37,8 @@ export async function PATCH(request: Request, { params }: { params: { id: string
 
 export async function DELETE(_request: Request, { params }: { params: { id: string } }) {
   try {
-    await requireSession();
-    await deleteSolution(params.id);
+    const session = await requireSession();
+    await deleteSolution(params.id, session.user.id);
     return NextResponse.json({ ok: true });
   } catch {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
