@@ -1,44 +1,31 @@
-# DBCWorkspace
+# Plataforma de Entrenamiento ICPC
 
-Herramienta privada de entrenamiento para un equipo de 3 personas (Cristobal, Briana, David) que compiten en ICPC. No es un producto publico. Registro solo por invitacion generada manualmente desde el panel de admin.
+Una plataforma integral diseñada para la gestión, entrenamiento y seguimiento de competidores de programación competitiva (ICPC).
 
-## Stack
+## Características Principales
 
-- Next.js 14+ (App Router)
-- PostgreSQL + Prisma ORM
-- Auth.js (invitacion, sin registro publico)
-- Tiptap (editor con LaTeX y bloques de codigo)
-- Vercel Blob (storage de archivos)
-- Despliegue en Vercel
+- **Dashboard**: Vista general de la actividad reciente, tareas públicas y calendario de eventos.
+- **Problemas**: Base de datos de problemas con etiquetas, niveles de dificultad y enlaces a diferentes jueces (Codeforces, CSES, etc.).
+- **Soluciones y Editoriales**: Espacio para redactar y guardar soluciones utilizando un editor de texto enriquecido (Markdown + KaTeX).
+- **Entrenamientos**: Gestión de calendarios de entrenamiento, sesiones y seguimiento de asistencia.
+- **Temas**: Jerarquía de temas y subtemas para organizar el aprendizaje.
 
-## Setup local
+## Tecnologías Utilizadas
 
-```bash
-git clone <repo>
-cd dbcworkspace
-npm install
-cp .env.example .env.local   # completar valores
-npx prisma migrate dev
-npm run prisma:seed
-npm run dev
-```
+- **Frontend**: Next.js 14 (App Router), React, Tailwind CSS
+- **Componentes**: Base UI, Radix UI, Lucide Icons
+- **Backend & Base de Datos**: Prisma ORM, PostgreSQL (Neon)
+- **Autenticación**: NextAuth.js (Credenciales cifradas con bcrypt)
 
-## Estructura del proyecto
+## Despliegue
 
-- `src/app` — rutas de Next.js (App Router), agrupadas en `(auth)`, `(dashboard)`, `(contest)`, `api`
-- `src/components` — UI compartida (`ui/`, `editor/`, `problems/`, `contest/`, `charts/`)
-- `src/lib` — utilidades tecnicas (Prisma client, Auth.js config, Blob helpers, validaciones)
-- `src/services` — logica de negocio (calculo de penalizacion ICPC, rating, changelog)
-- `prisma` — esquema y seed de base de datos
+Este proyecto está optimizado para ser desplegado en **Vercel**.
 
-## Flujo de Git
-
-- `main` -> produccion (Vercel), `dev` -> staging (Vercel preview)
-- Todo desarrollo sale de `dev` en ramas `feat/`, `fix/`, `chore/`, `docs/`
-- PR de la feature branch hacia `dev`; PR de `dev` hacia `main` solo cuando `dev` este estable
-- Conventional Commits obligatorio (`feat(scope): ...`, `fix(scope): ...`, etc.)
-- Un commit por unidad atomica de trabajo
-
-## Modo Contest
-
-Interfaz separada del resto de la app (`src/app/(contest)`), pantalla completa, sin navegacion lateral, inspirada funcionalmente en PC² (el judge real de ICPC): penalizacion de 20 minutos por intento fallido, freeze de scoreboard en la ultima hora, ranking estilo ICPC.
+1. Importa el repositorio en Vercel.
+2. Configura las siguientes variables de entorno:
+   - `DATABASE_URL`: URL principal de PostgreSQL.
+   - `DIRECT_URL`: URL directa (sin pooling) para migraciones de Prisma.
+   - `AUTH_SECRET`: Cadena aleatoria segura para cifrar sesiones.
+   - `NEXTAUTH_URL`: URL pública de la aplicación.
+3. El comando de instalación recomendado es `npm install --legacy-peer-deps`.
+4. Vercel ejecutará automáticamente la construcción (`npm run build`).
