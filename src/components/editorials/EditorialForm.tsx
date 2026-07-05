@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/Button';
-import { RichTextEditor } from '@/components/editor/RichTextEditor';
+import { MarkdownEditor } from '@/components/editor/MarkdownEditor';
 
 export function EditorialForm({
   problemId,
@@ -40,10 +40,10 @@ export function EditorialForm({
   }
 
   return (
-    <form onSubmit={handleSubmit} className="max-w-2xl space-y-4">
+    <form onSubmit={handleSubmit} className="max-w-4xl space-y-4">
       <div className="space-y-2">
-        <label className="text-sm text-text-secondary">Editorial</label>
-        <RichTextEditor value={content} onChange={setContent} />
+        <label className="text-sm text-text-secondary">Editorial (Markdown + LaTeX)</label>
+        <MarkdownEditor value={content} onChange={setContent} />
       </div>
 
       {error && <p className="text-sm text-status-pending">{error}</p>}

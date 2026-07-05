@@ -14,7 +14,7 @@ export default async function EditEditorialPage({ params }: { params: { id: stri
   const editorial = await getEditorialByProblem(problem.id);
 
   return (
-    <div className="max-w-2xl space-y-4">
+    <div className="max-w-4xl space-y-4">
       <Breadcrumbs
         items={[
           { label: 'Problemas', href: '/problems' },

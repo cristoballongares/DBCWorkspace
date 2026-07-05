@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
-import { RichTextEditor } from '@/components/editor/RichTextEditor';
+import { MarkdownEditor } from '@/components/editor/MarkdownEditor';
 
 type SolutionFormValues = {
   id?: string;
@@ -68,10 +68,10 @@ export function SolutionForm({
   }
 
   return (
-    <form onSubmit={handleSubmit} className="max-w-2xl space-y-4">
+    <form onSubmit={handleSubmit} className="max-w-4xl space-y-4">
       <div className="space-y-2">
-        <label className="text-sm text-text-secondary">Solucion</label>
-        <RichTextEditor
+        <label className="text-sm text-text-secondary">Solucion (Markdown + LaTeX)</label>
+        <MarkdownEditor
           value={values.content}
           onChange={(content) => setValues((prev) => ({ ...prev, content }))}
         />

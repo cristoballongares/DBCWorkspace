@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { RichContent } from '@/components/editor/RichContent';
+import { MarkdownContent } from '@/components/editor/MarkdownContent';
 import { Button } from '@/components/ui/Button';
 import { DeleteSolutionButton } from './DeleteSolutionButton';
 
@@ -30,7 +30,7 @@ export function SolutionCard({ solution }: { solution: SolutionCardData }) {
         </div>
       </div>
 
-      <RichContent html={solution.content} />
+      <MarkdownContent source={solution.content} />
 
       {solution.reasoning && (
         <p className="whitespace-pre-wrap text-sm text-text-secondary">{solution.reasoning}</p>

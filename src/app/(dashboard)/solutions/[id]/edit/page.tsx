@@ -14,7 +14,7 @@ export default async function EditSolutionPage({ params }: { params: { id: strin
   const problem = await getProblem(solution.problemId);
 
   return (
-    <div className="max-w-2xl space-y-4">
+    <div className="max-w-4xl space-y-4">
       <Breadcrumbs
         items={[
           { label: 'Problemas', href: '/problems' },

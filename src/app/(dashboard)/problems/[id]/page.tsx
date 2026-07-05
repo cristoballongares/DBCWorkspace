@@ -10,7 +10,7 @@ import { Button } from '@/components/ui/Button';
 import { DeleteProblemButton } from '@/components/problems/DeleteProblemButton';
 import { SolutionCard } from '@/components/solutions/SolutionCard';
 import { DeleteEditorialButton } from '@/components/editorials/DeleteEditorialButton';
-import { RichContent } from '@/components/editor/RichContent';
+import { MarkdownContent } from '@/components/editor/MarkdownContent';
 import { Breadcrumbs } from '@/components/ui/Breadcrumbs';
 
 export default async function ProblemDetailPage({ params }: { params: { id: string } }) {
@@ -101,7 +101,7 @@ export default async function ProblemDetailPage({ params }: { params: { id: stri
         {editorial ? (
           <div className="space-y-2 rounded-md border border-border-default bg-bg-surface p-4">
             <p className="text-sm text-text-secondary">{editorial.author.name}</p>
-            <RichContent html={editorial.content} />
+            <MarkdownContent source={editorial.content} />
           </div>
         ) : (
           <p className="text-sm text-text-muted">Todavia no hay editorial para este problema.</p>
