@@ -28,6 +28,23 @@ const problemsIcon = (
   </svg>
 );
 
+const contestsIcon = (
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    fill="none"
+    viewBox="0 0 24 24"
+    strokeWidth={1.5}
+    stroke="currentColor"
+    className="h-5 w-5"
+  >
+    <path
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      d="M8 9l3 3-3 3m5 0h3M5 20h14a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
+    />
+  </svg>
+);
+
 const invitationsIcon = (
   <svg
     xmlns="http://www.w3.org/2000/svg"
@@ -65,7 +82,10 @@ const signOutIcon = (
 export function DashboardNav({ role }: { role: Role }) {
   const pathname = usePathname();
 
-  const items: NavItem[] = [{ href: '/problems', label: 'Problemas', icon: problemsIcon }];
+  const items: NavItem[] = [
+    { href: '/problems', label: 'Problemas', icon: problemsIcon },
+    { href: '/contests', label: 'Contests', icon: contestsIcon },
+  ];
 
   if (role === 'ADMIN') {
     items.push({ href: '/admin/invitations', label: 'Invitaciones', icon: invitationsIcon });
