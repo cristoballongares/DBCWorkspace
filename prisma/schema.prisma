@@ -83,6 +83,7 @@ model Problem {
   editorial       Editorial?
   contestProblems ContestProblem[]
   changeLogs      ChangeLog[]
+  topicLinks      TopicProblem[]
 
   @@index([status])
   @@index([difficulty])
@@ -279,10 +280,24 @@ model NotebookEntry {
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
 
-  author     User        @relation(fields: [authorId], references: [id])
+  author     User            @relation(fields: [authorId], references: [id])
   changeLogs ChangeLog[]
+  exercises  TopicProblem[]
 
   @@index([category])
+}
+
+// Ejercicios asociados a un tema (p.ej. problemas de "Segment Tree" o
+// "Teoria de Numeros"), independiente del sistema de tags de problemas.
+model TopicProblem {
+  notebookEntryId String
+  problemId       String
+
+  notebookEntry NotebookEntry @relation(fields: [notebookEntryId], references: [id], onDelete: Cascade)
+  problem       Problem       @relation(fields: [problemId], references: [id], onDelete: Cascade)
+
+  @@id([notebookEntryId, problemId])
+  @@index([problemId])
 }
 
 // ── Auditoria ─────────────────────────────────────────────────

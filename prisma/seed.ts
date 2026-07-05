@@ -24,6 +24,7 @@ async function main() {
   });
 
   await seedDemoProblems(admin.id);
+  await seedDemoTopics(admin.id);
 }
 
 // Datos de prueba para poder previsualizar la app (problemas, soluciones,
@@ -214,6 +215,142 @@ Complejidad: $O(n \\log n)$.`,
         data: { problemId: problem.id, authorId, content: demo.editorial },
       });
     }
+  }
+}
+
+function slugify(value: string) {
+  return value
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[̀-ͯ]/g, '')
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/(^-|-$)/g, '');
+}
+
+// Temas de ejemplo (explicaciones + ejercicios vinculados) para previsualizar
+// el nuevo apartado "Temas". Idempotente por slug.
+async function seedDemoTopics(authorId: string) {
+  const demoTopics = [
+    {
+      title: 'Segment Tree',
+      category: 'Estructuras de datos',
+      exerciseTitles: ['Segment tree con actualizaciones de rango'],
+      commonPitfalls:
+        'Olvidar propagar el lazy tag antes de leer un hijo. Indices 1-based vs 0-based al construir el arbol.',
+      content: `## Que es
+
+Un **segment tree** permite responder consultas de rango (suma, minimo, maximo...) y actualizaciones
+puntuales o de rango en $O(\\log n)$, sobre un arreglo de tamano $n$.
+
+## Estructura
+
+Cada nodo representa un rango $[l, r]$. El nodo raiz cubre $[0, n-1]$; cada hijo cubre la mitad izquierda
+o derecha de su padre.
+
+$$\\text{tamano del arbol} \\approx 4n$$
+
+## Consulta de rango
+
+\`\`\`cpp
+int query(int node, int l, int r, int ql, int qr) {
+    if (qr < l || r < ql) return 0; // fuera de rango
+    if (ql <= l && r <= qr) return tree[node]; // contenido totalmente
+    int mid = (l + r) / 2;
+    return query(2*node, l, mid, ql, qr) + query(2*node+1, mid+1, r, ql, qr);
+}
+\`\`\`
+
+## Lazy propagation
+
+Para actualizaciones de **rango** (no solo puntuales), se difiere la propagacion a los hijos usando un
+arreglo \`lazy[]\`: se marca el nodo y solo se empuja la marca hacia abajo cuando realmente hace falta
+visitar un hijo. Ver el editorial del ejercicio vinculado para el detalle completo.`,
+    },
+    {
+      title: 'Teoria de Numeros',
+      category: 'Matematicas',
+      exerciseTitles: [],
+      commonPitfalls:
+        'Overflow al multiplicar antes de aplicar el modulo. No usar inverso modular cuando el modulo no es primo.',
+      content: `## Aritmetica modular
+
+Para un modulo primo $p$, se cumple:
+
+$$(a + b) \\bmod p = ((a \\bmod p) + (b \\bmod p)) \\bmod p$$
+$$(a \\times b) \\bmod p = ((a \\bmod p) \\times (b \\bmod p)) \\bmod p$$
+
+## Exponenciacion rapida
+
+Para calcular $a^b \\bmod p$ en $O(\\log b)$:
+
+\`\`\`cpp
+long long power(long long a, long long b, long long mod) {
+    long long res = 1;
+    a %= mod;
+    while (b > 0) {
+        if (b & 1) res = res * a % mod;
+        a = a * a % mod;
+        b >>= 1;
+    }
+    return res;
+}
+\`\`\`
+
+## Inverso modular (Fermat)
+
+Si $p$ es primo y $\\gcd(a, p) = 1$:
+
+$$a^{-1} \\equiv a^{p-2} \\pmod{p}$$
+
+Util para dividir bajo modulo: en vez de $\\frac{a}{b} \\bmod p$, calculamos $a \\times b^{-1} \\bmod p$.`,
+    },
+    {
+      title: 'Two Pointers',
+      category: 'Tecnicas',
+      exerciseTitles: ['Two pointers en arreglo ordenado'],
+      commonPitfalls: 'Usar two pointers en un arreglo no ordenado sin ordenarlo primero.',
+      content: `## Idea general
+
+Cuando un arreglo esta ordenado, muchos problemas de "encontrar un par que cumpla X" se resuelven
+moviendo dos indices $(i, j)$ hacia adentro en vez de probar todos los pares ($O(n^2)$).
+
+\`\`\`cpp
+int i = 0, j = (int)a.size() - 1;
+while (i < j) {
+    long long sum = a[i] + a[j];
+    if (sum == target) return {i, j};
+    if (sum < target) i++;
+    else j--;
+}
+\`\`\`
+
+Complejidad: $O(n)$ en vez de $O(n^2)$, aprovechando que el arreglo esta ordenado.`,
+    },
+  ];
+
+  for (const demo of demoTopics) {
+    const slug = slugify(demo.title);
+    const existing = await prisma.notebookEntry.findUnique({ where: { slug } });
+    if (existing) continue;
+
+    const exercises = await prisma.problem.findMany({
+      where: { title: { in: demo.exerciseTitles } },
+      select: { id: true },
+    });
+
+    await prisma.notebookEntry.create({
+      data: {
+        slug,
+        title: demo.title,
+        category: demo.category,
+        content: demo.content,
+        commonPitfalls: demo.commonPitfalls,
+        authorId,
+        exercises: {
+          create: exercises.map((p) => ({ problem: { connect: { id: p.id } } })),
+        },
+      },
+    });
   }
 }
 
