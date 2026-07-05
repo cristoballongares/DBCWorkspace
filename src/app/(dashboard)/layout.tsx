@@ -2,6 +2,7 @@ import { redirect } from 'next/navigation';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import { DashboardNav } from '@/components/DashboardNav';
+import { SidebarProvider, SidebarInset } from '@/components/ui/sidebar';
 
 export default async function DashboardLayout({
   children,
@@ -15,9 +16,11 @@ export default async function DashboardLayout({
   }
 
   return (
-    <div className="flex min-h-screen bg-bg-base">
+    <SidebarProvider>
       <DashboardNav role={session.user.role} />
-      <main className="flex-1 overflow-y-auto p-8">{children}</main>
-    </div>
+      <SidebarInset className="bg-bg-base transition-all duration-300 ease-in-out min-w-0 flex-1">
+        <main className="flex-1 overflow-x-hidden p-8 w-full min-w-0">{children}</main>
+      </SidebarInset>
+    </SidebarProvider>
   );
 }

@@ -1,22 +1,22 @@
 import type { ProblemStatus } from '@prisma/client';
+import { Star, User, CircleDashed } from 'lucide-react';
 
-// SOLVED_INDIVIDUAL se mapea a amarillo (intentado/parcial): el equipo aun
-// no tiene la solucion cubierta como conocimiento colectivo, aunque una
-// persona ya la resolvio.
-const statusConfig: Record<ProblemStatus, { label: string; dot: string; text: string }> = {
-  UNSOLVED: { label: 'Pendiente', dot: 'bg-status-pending', text: 'text-status-pending' },
-  SOLVED_INDIVIDUAL: { label: 'Individual', dot: 'bg-status-attempted', text: 'text-status-attempted' },
-  SOLVED_TEAM: { label: 'Equipo', dot: 'bg-status-solved', text: 'text-status-solved' },
+const statusConfig = {
+  UNSOLVED: { label: 'Pendiente', icon: CircleDashed, text: 'text-text-muted', bg: 'bg-transparent border-border-default' },
+  SOLVED_INDIVIDUAL: { label: 'Individual', icon: User, text: 'text-link-focus', bg: 'bg-bg-elevated border-border-strong' },
+  SOLVED_TEAM: { label: 'Equipo', icon: Star, text: 'text-yellow-500 fill-yellow-500', bg: 'bg-bg-elevated border-yellow-500/20' },
 };
 
 export function StatusBadge({ status }: { status: ProblemStatus }) {
   const config = statusConfig[status];
+  const Icon = config.icon;
   return (
-    <span
-      className={`inline-flex items-center gap-1.5 rounded-full border border-border-default bg-bg-elevated px-2 py-0.5 text-xs font-medium ${config.text}`}
+    <div
+      className={`inline-flex items-center justify-center gap-1.5 rounded-md border px-2 py-1 text-xs font-medium transition-colors ${config.bg} ${config.text}`}
+      title={config.label}
     >
-      <span className={`h-1.5 w-1.5 rounded-full ${config.dot}`} aria-hidden="true" />
-      {config.label}
-    </span>
+      <Icon className={`h-3.5 w-3.5 ${status === 'SOLVED_TEAM' ? 'fill-yellow-500' : ''}`} />
+      <span className="sr-only md:not-sr-only">{config.label}</span>
+    </div>
   );
 }

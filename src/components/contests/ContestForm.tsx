@@ -41,11 +41,6 @@ export function ContestForm({ problems }: { problems: SelectableProblem[] }) {
       label,
     }));
 
-    if (contestProblems.length === 0) {
-      setError('Selecciona al menos un problema');
-      return;
-    }
-
     setIsSubmitting(true);
 
     const response = await fetch('/api/contests', {

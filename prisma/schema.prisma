@@ -33,8 +33,19 @@ model User {
   trainingSessions   TrainingSession[]
   postMortemNotes    ContestPostMortem[]
   ratingSnapshots    RatingSnapshot[]
+  publicTodos        PublicTodo[]
 
   @@index([role])
+}
+
+model PublicTodo {
+  id        String   @id @default(cuid())
+  text      String
+  completed Boolean  @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  authorId  String
+  author    User     @relation(fields: [authorId], references: [id])
 }
 
 model Invitation {
@@ -162,6 +173,7 @@ model Contest {
   submissions     ContestSubmission[]
   postMortem      ContestPostMortem?
   ratingSnapshots RatingSnapshot[]
+  changeLogs      ChangeLog[]
 
   @@index([status])
 }
@@ -313,6 +325,7 @@ enum ChangeLogEntity {
   SOLUTION
   EDITORIAL
   NOTEBOOK_ENTRY
+  CONTEST
 }
 
 model ChangeLog {
@@ -335,6 +348,9 @@ model ChangeLog {
 
   notebookEntryId String?
   notebookEntry   NotebookEntry? @relation(fields: [notebookEntryId], references: [id], onDelete: Cascade)
+
+  contestId String?
+  contest   Contest? @relation(fields: [contestId], references: [id], onDelete: Cascade)
 
   @@index([entityType])
   @@index([editorId])

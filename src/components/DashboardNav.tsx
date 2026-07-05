@@ -4,198 +4,96 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { signOut } from 'next-auth/react';
 import type { Role } from '@prisma/client';
+import {
+  Sidebar,
+  SidebarContent,
+  SidebarFooter,
+  SidebarGroup,
+  SidebarGroupContent,
+  SidebarGroupLabel,
+  SidebarHeader,
+  SidebarMenu,
+  SidebarMenuButton,
+  SidebarMenuItem,
+  useSidebar,
+} from '@/components/ui/sidebar';
+import { LayoutDashboard, BookOpen, Trophy, Dumbbell, Tags, Users, Key, LogOut } from 'lucide-react';
+import { ThemeSwitcher } from '@/components/ThemeSwitcher';
 
 type NavItem = {
   href: string;
   label: string;
-  icon: React.ReactNode;
+  icon: React.ElementType;
 };
-
-const dashboardIcon = (
-  <svg
-    xmlns="http://www.w3.org/2000/svg"
-    fill="none"
-    viewBox="0 0 24 24"
-    strokeWidth={1.5}
-    stroke="currentColor"
-    className="h-5 w-5"
-  >
-    <path
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      d="M3.75 6A2.25 2.25 0 016 3.75h2.25A2.25 2.25 0 0110.5 6v2.25a2.25 2.25 0 01-2.25 2.25H6a2.25 2.25 0 01-2.25-2.25V6zM3.75 15.75A2.25 2.25 0 016 13.5h2.25a2.25 2.25 0 012.25 2.25V18a2.25 2.25 0 01-2.25 2.25H6A2.25 2.25 0 013.75 18v-2.25zM13.5 6a2.25 2.25 0 012.25-2.25H18A2.25 2.25 0 0120.25 6v2.25A2.25 2.25 0 0118 10.5h-2.25a2.25 2.25 0 01-2.25-2.25V6zM13.5 15.75a2.25 2.25 0 012.25-2.25H18a2.25 2.25 0 012.25 2.25V18A2.25 2.25 0 0118 20.25h-2.25A2.25 2.25 0 0113.5 18v-2.25z"
-    />
-  </svg>
-);
-
-const trainingIcon = (
-  <svg
-    xmlns="http://www.w3.org/2000/svg"
-    fill="none"
-    viewBox="0 0 24 24"
-    strokeWidth={1.5}
-    stroke="currentColor"
-    className="h-5 w-5"
-  >
-    <path
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5A2.25 2.25 0 0121 11.25v7.5"
-    />
-  </svg>
-);
-
-const topicsIcon = (
-  <svg
-    xmlns="http://www.w3.org/2000/svg"
-    fill="none"
-    viewBox="0 0 24 24"
-    strokeWidth={1.5}
-    stroke="currentColor"
-    className="h-5 w-5"
-  >
-    <path
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      d="M12 6.042A8.967 8.967 0 006 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 016 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 016-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0018 18a8.967 8.967 0 00-6 2.292m0-14.25v14.25"
-    />
-  </svg>
-);
-
-const teamIcon = (
-  <svg
-    xmlns="http://www.w3.org/2000/svg"
-    fill="none"
-    viewBox="0 0 24 24"
-    strokeWidth={1.5}
-    stroke="currentColor"
-    className="h-5 w-5"
-  >
-    <path
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      d="M18 18.72a9.094 9.094 0 003.741-.479 3 3 0 00-4.682-2.72m.94 3.198l.001.031c0 .225-.012.447-.037.666A11.944 11.944 0 0112 21c-2.17 0-4.207-.576-5.963-1.584A6.062 6.062 0 016 18.719m12 0a5.971 5.971 0 00-.941-3.197m0 0A5.995 5.995 0 0012 12.75a5.995 5.995 0 00-5.058 2.772m0 0a3 3 0 00-4.681 2.72 8.986 8.986 0 003.74.477m.94-3.197a5.971 5.971 0 00-.94 3.197M15 6.75a3 3 0 11-6 0 3 3 0 016 0zm6 3a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0zm-13.5 0a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0z"
-    />
-  </svg>
-);
-
-const problemsIcon = (
-  <svg
-    xmlns="http://www.w3.org/2000/svg"
-    fill="none"
-    viewBox="0 0 24 24"
-    strokeWidth={1.5}
-    stroke="currentColor"
-    className="h-5 w-5"
-  >
-    <path
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l4.414 4.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
-    />
-  </svg>
-);
-
-const contestsIcon = (
-  <svg
-    xmlns="http://www.w3.org/2000/svg"
-    fill="none"
-    viewBox="0 0 24 24"
-    strokeWidth={1.5}
-    stroke="currentColor"
-    className="h-5 w-5"
-  >
-    <path
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      d="M8 9l3 3-3 3m5 0h3M5 20h14a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
-    />
-  </svg>
-);
-
-const invitationsIcon = (
-  <svg
-    xmlns="http://www.w3.org/2000/svg"
-    fill="none"
-    viewBox="0 0 24 24"
-    strokeWidth={1.5}
-    stroke="currentColor"
-    className="h-5 w-5"
-  >
-    <path
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
-    />
-  </svg>
-);
-
-const signOutIcon = (
-  <svg
-    xmlns="http://www.w3.org/2000/svg"
-    fill="none"
-    viewBox="0 0 24 24"
-    strokeWidth={1.5}
-    stroke="currentColor"
-    className="h-5 w-5"
-  >
-    <path
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"
-    />
-  </svg>
-);
 
 export function DashboardNav({ role }: { role: Role }) {
   const pathname = usePathname();
+  const { setOpen, open } = useSidebar();
 
   const items: NavItem[] = [
-    { href: '/dashboard', label: 'Dashboard', icon: dashboardIcon },
-    { href: '/problems', label: 'Problemas', icon: problemsIcon },
-    { href: '/contests', label: 'Contests', icon: contestsIcon },
-    { href: '/training', label: 'Entrenamiento', icon: trainingIcon },
-    { href: '/topics', label: 'Temas', icon: topicsIcon },
-    { href: '/team', label: 'Equipo', icon: teamIcon },
+    { href: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
+    { href: '/problems', label: 'Problemas', icon: BookOpen },
+    { href: '/contests', label: 'Contests', icon: Trophy },
+    { href: '/training', label: 'Entrenamiento', icon: Dumbbell },
+    { href: '/topics', label: 'Temas', icon: Tags },
+    { href: '/team', label: 'Equipo', icon: Users },
   ];
 
   if (role === 'ADMIN') {
-    items.push({ href: '/admin/invitations', label: 'Invitaciones', icon: invitationsIcon });
+    items.push({ href: '/admin/invitations', label: 'Invitaciones', icon: Key });
   }
 
   return (
-    <nav className="flex h-screen w-60 flex-shrink-0 flex-col border-r border-border-default bg-bg-surface">
-      <div className="px-4 py-5">
-        <span className="text-sm font-semibold tracking-wide text-text-primary">DBCWorkspace</span>
-      </div>
-      <div className="flex-1 space-y-0.5 px-2">
-        {items.map((item) => {
-          const isActive = pathname === item.href || pathname?.startsWith(`${item.href}/`);
-          return (
-            <Link
-              key={item.href}
-              href={item.href}
-              className={`flex items-center gap-3 rounded-md border-l-2 px-3 py-2 text-sm transition-colors duration-150 ${
-                isActive
-                  ? 'border-link-focus bg-accent-muted text-link-focus'
-                  : 'border-transparent text-text-secondary hover:bg-bg-elevated hover:text-text-primary'
-              }`}
+    <Sidebar collapsible="icon" variant="sidebar" className="border-r border-border-default bg-bg-base">
+      <SidebarHeader className="pt-4 pb-2 px-4 flex items-center h-16">
+        {open ? (
+          <span className="text-sm font-semibold tracking-wider text-text-primary uppercase">DBCWorkspace</span>
+        ) : (
+          <span className="text-sm font-bold text-text-primary">DW</span>
+        )}
+      </SidebarHeader>
+      
+      <SidebarContent>
+        <SidebarGroup>
+          <SidebarGroupLabel className="text-text-muted text-xs">Menú Principal</SidebarGroupLabel>
+          <SidebarGroupContent>
+            <SidebarMenu>
+              {items.map((item) => {
+                const isActive = pathname === item.href || pathname?.startsWith(`${item.href}/`);
+                return (
+                  <SidebarMenuItem key={item.href}>
+                    <Link href={item.href} className="w-full block">
+                      <SidebarMenuButton 
+                        isActive={isActive} 
+                        tooltip={!open ? item.label : undefined}
+                        className={isActive ? 'bg-bg-elevated text-link-focus font-medium' : 'text-text-secondary hover:bg-bg-surface hover:text-text-primary transition-colors'}
+                      >
+                        <item.icon className="h-4 w-4" />
+                        <span>{item.label}</span>
+                      </SidebarMenuButton>
+                    </Link>
+                  </SidebarMenuItem>
+                );
+              })}
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+      </SidebarContent>
+      <SidebarFooter className="border-t border-border-default p-2">
+        <ThemeSwitcher />
+        <SidebarMenu>
+          <SidebarMenuItem>
+            <SidebarMenuButton 
+              onClick={() => signOut({ callbackUrl: '/login' })}
+              tooltip="Cerrar sesión"
+              className="text-text-secondary hover:bg-bg-surface hover:text-text-primary transition-colors"
             >
-              {item.icon}
-              {item.label}
-            </Link>
-          );
-        })}
-      </div>
-      <div className="mt-auto border-t border-border-default px-2 py-3">
-        <button
-          onClick={() => signOut({ callbackUrl: '/login' })}
-          className="flex w-full cursor-pointer items-center gap-3 rounded-md border-l-2 border-transparent px-3 py-2 text-left text-sm text-text-secondary hover:bg-bg-elevated hover:text-text-primary"
-        >
-          {signOutIcon}
-          Cerrar sesion
-        </button>
-      </div>
-    </nav>
+              <LogOut className="h-4 w-4" />
+              <span>Cerrar sesión</span>
+            </SidebarMenuButton>
+          </SidebarMenuItem>
+        </SidebarMenu>
+      </SidebarFooter>
+    </Sidebar>
   );
 }

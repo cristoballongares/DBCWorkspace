@@ -24,7 +24,7 @@ export function DeleteContestButton({ contestId }: { contestId: string }) {
   }
 
   return (
-    <Button variant="danger" onClick={handleDelete} disabled={isDeleting}>
+    <Button variant="destructive" onClick={handleDelete} disabled={isDeleting}>
       {isDeleting ? 'Eliminando...' : 'Eliminar'}
     </Button>
   );

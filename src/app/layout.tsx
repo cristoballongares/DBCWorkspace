@@ -13,6 +13,8 @@ export const metadata: Metadata = {
   description: 'Herramienta privada de entrenamiento ICPC',
 };
 
+import { NuqsAdapter } from 'nuqs/adapters/next/app';
+
 export default function RootLayout({
   children,
 }: {
@@ -21,7 +23,9 @@ export default function RootLayout({
   return (
     <html lang="es" className={`${inter.variable} ${jetbrainsMono.variable}`}>
       <body className="font-sans">
-        <Providers>{children}</Providers>
+        <NuqsAdapter>
+          <Providers>{children}</Providers>
+        </NuqsAdapter>
       </body>
     </html>
   );

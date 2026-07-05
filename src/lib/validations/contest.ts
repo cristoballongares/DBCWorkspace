@@ -13,7 +13,7 @@ export const createContestSchema = z.object({
   durationMin: z.number().int().positive().default(300),
   penaltyMin: z.number().int().nonnegative().default(20),
   freezeMin: z.number().int().nonnegative().default(60),
-  problems: z.array(contestProblemInputSchema).min(1),
+  problems: z.array(contestProblemInputSchema).optional().default([]),
 });
 
 export const updateContestSchema = z.object({

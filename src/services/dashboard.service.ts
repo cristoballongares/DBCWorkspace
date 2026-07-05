@@ -2,7 +2,7 @@ import { prisma } from '@/lib/prisma';
 import { getCurrentRatings } from '@/services/rating.service';
 
 export async function getDashboardData(userId: string) {
-  const [solvedProblemIds, totalProblems, upcomingContests, recentSolutions, ratings] =
+  const [solvedProblemIds, totalProblems, upcomingContests, recentActivity, ratings, publicTodos] =
     await Promise.all([
       prisma.solution.findMany({
         where: { authorId: userId },
@@ -15,15 +15,21 @@ export async function getDashboardData(userId: string) {
         orderBy: { startTime: 'asc' },
         take: 5,
       }),
-      prisma.solution.findMany({
+      prisma.changeLog.findMany({
         orderBy: { createdAt: 'desc' },
-        take: 5,
+        take: 10,
         include: {
-          author: { select: { name: true } },
+          editor: { select: { name: true } },
           problem: { select: { id: true, title: true } },
+          contest: { select: { id: true, name: true } },
+          notebookEntry: { select: { slug: true, title: true } },
         },
       }),
       getCurrentRatings(),
+      prisma.publicTodo.findMany({
+        orderBy: { createdAt: 'asc' },
+        include: { author: { select: { name: true } } },
+      }),
     ]);
 
   const myRating = ratings.find((r) => r.id === userId) ?? null;
@@ -32,8 +38,9 @@ export async function getDashboardData(userId: string) {
     problemsSolvedByMe: solvedProblemIds.length,
     totalProblems,
     upcomingContests,
-    recentSolutions,
+    recentActivity,
     myRating,
+    publicTodos,
   };
 }
 

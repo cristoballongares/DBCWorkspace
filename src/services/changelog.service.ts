@@ -9,6 +9,7 @@ export async function logChange(params: {
   solutionId?: string;
   editorialId?: string;
   notebookEntryId?: string;
+  contestId?: string;
 }) {
   return prisma.changeLog.create({
     data: {
@@ -19,6 +20,7 @@ export async function logChange(params: {
       solutionId: params.solutionId,
       editorialId: params.editorialId,
       notebookEntryId: params.notebookEntryId,
+      contestId: params.contestId,
     },
   });
 }

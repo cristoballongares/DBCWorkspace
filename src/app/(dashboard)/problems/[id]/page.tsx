@@ -12,6 +12,7 @@ import { SolutionCard } from '@/components/solutions/SolutionCard';
 import { DeleteEditorialButton } from '@/components/editorials/DeleteEditorialButton';
 import { MarkdownContent } from '@/components/editor/MarkdownContent';
 import { Breadcrumbs } from '@/components/ui/Breadcrumbs';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 export default async function ProblemDetailPage({ params }: { params: { id: string } }) {
   const problem = await getProblem(params.id);
@@ -68,44 +69,61 @@ export default async function ProblemDetailPage({ params }: { params: { id: stri
         )}
       </div>
 
-      <div className="space-y-3 pt-4">
-        <div className="flex items-center justify-between">
-          <h2 className="text-lg font-semibold text-text-primary">Soluciones</h2>
-          <Link href={`/problems/${problem.id}/solutions/new`}>
-            <Button variant="secondary">Agregar solucion</Button>
-          </Link>
-        </div>
-
-        {solutions.length === 0 && (
-          <p className="text-sm text-text-muted">Todavia no hay soluciones registradas.</p>
-        )}
-
-        <div className="space-y-3">
-          {solutions.map((solution) => (
-            <SolutionCard key={solution.id} solution={solution} />
-          ))}
-        </div>
-      </div>
-
-      <div className="space-y-3 pt-4">
-        <div className="flex items-center justify-between">
-          <h2 className="text-lg font-semibold text-text-primary">Editorial</h2>
-          <div className="flex gap-2">
-            <Link href={`/problems/${problem.id}/editorial/edit`}>
-              <Button variant="secondary">{editorial ? 'Editar editorial' : 'Agregar editorial'}</Button>
-            </Link>
-            {editorial && <DeleteEditorialButton problemId={problem.id} />}
+      <div className="pt-6">
+        <Tabs defaultValue="editorial" className="w-full">
+          <div className="flex items-center justify-between mb-4">
+            <TabsList className="bg-bg-elevated border border-border-default">
+              <TabsTrigger value="editorial" className="data-[state=active]:bg-bg-surface data-[state=active]:text-text-primary text-text-muted">
+                Editorial Consolidada
+              </TabsTrigger>
+              <TabsTrigger value="solutions" className="data-[state=active]:bg-bg-surface data-[state=active]:text-text-primary text-text-muted">
+                Soluciones Individuales ({solutions.length})
+              </TabsTrigger>
+            </TabsList>
           </div>
-        </div>
 
-        {editorial ? (
-          <div className="space-y-2 rounded-md border border-border-default bg-bg-surface p-4">
-            <p className="text-sm text-text-secondary">{editorial.author.name}</p>
-            <MarkdownContent source={editorial.content} />
-          </div>
-        ) : (
-          <p className="text-sm text-text-muted">Todavia no hay editorial para este problema.</p>
-        )}
+          <TabsContent value="editorial" className="space-y-4">
+            <div className="flex justify-end gap-2">
+              <Link href={`/problems/${problem.id}/editorial/edit`}>
+                <Button variant="secondary">{editorial ? 'Editar editorial' : 'Agregar editorial'}</Button>
+              </Link>
+              {editorial && <DeleteEditorialButton problemId={problem.id} />}
+            </div>
+            
+            {editorial ? (
+              <div className="space-y-4 rounded-md border border-border-default bg-bg-surface p-6">
+                <p className="text-sm font-semibold text-text-secondary">Escrito por {editorial.author.name}</p>
+                <div className="prose prose-invert max-w-none prose-pre:bg-bg-elevated prose-pre:border prose-pre:border-border-default">
+                  <MarkdownContent source={editorial.content} />
+                </div>
+              </div>
+            ) : (
+              <div className="flex h-32 items-center justify-center rounded-md border border-dashed border-border-strong text-text-muted">
+                Todavía no hay editorial para este problema.
+              </div>
+            )}
+          </TabsContent>
+
+          <TabsContent value="solutions" className="space-y-4">
+            <div className="flex justify-end">
+              <Link href={`/problems/${problem.id}/solutions/new`}>
+                <Button variant="secondary">Agregar solución</Button>
+              </Link>
+            </div>
+
+            {solutions.length === 0 ? (
+              <div className="flex h-32 items-center justify-center rounded-md border border-dashed border-border-strong text-text-muted">
+                Todavía no hay soluciones registradas.
+              </div>
+            ) : (
+              <div className="grid gap-4 md:grid-cols-2">
+                {solutions.map((solution) => (
+                  <SolutionCard key={solution.id} solution={solution} />
+                ))}
+              </div>
+            )}
+          </TabsContent>
+        </Tabs>
       </div>
     </div>
   );

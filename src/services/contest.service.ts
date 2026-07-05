@@ -2,6 +2,7 @@ import { prisma } from '@/lib/prisma';
 import type { createContestSchema, updateContestSchema } from '@/lib/validations/contest';
 import type { z } from 'zod';
 import { recalculateRatingForContest } from './rating.service';
+import { logChange } from '@/services/changelog.service';
 
 type CreateContestInput = z.infer<typeof createContestSchema>;
 type UpdateContestInput = z.infer<typeof updateContestSchema>;
@@ -28,8 +29,8 @@ export async function getContest(id: string) {
   });
 }
 
-export async function createContest(input: CreateContestInput) {
-  return prisma.contest.create({
+export async function createContest(input: CreateContestInput, editorId: string) {
+  const contest = await prisma.contest.create({
     data: {
       name: input.name,
       startTime: input.startTime,
@@ -46,6 +47,15 @@ export async function createContest(input: CreateContestInput) {
     },
     include: contestInclude,
   });
+
+  await logChange({
+    entityType: 'CONTEST',
+    editorId,
+    diffSummary: `Contest created: ${contest.name}`,
+    contestId: contest.id,
+  });
+
+  return contest;
 }
 
 export async function updateContest(id: string, input: UpdateContestInput) {

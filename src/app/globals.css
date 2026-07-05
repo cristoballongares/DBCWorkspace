@@ -3,38 +3,62 @@
 @tailwind utilities;
 
 :root {
-  /* Base (GitHub dark dimmed) */
-  --bg-base: #0d1117;
-  --bg-surface: #161b22;
-  --bg-elevated: #21262d;
-  --bg-overlay: #2d333b;
-  --border-default: #30363d;
-  --border-strong: #454c56;
-
-  /* Texto */
-  --text-primary: #e6edf3;
-  --text-secondary: #9198a1;
-  --text-muted: #6e7681;
-
-  /* Acento (foco, links, nav activo) */
-  --link-focus: #4493f8;
-  --accent-muted: rgba(68, 147, 248, 0.15);
-
-  /* Semanticos de estado (problemas: resuelto individual/equipo/pendiente) */
-  --status-solved: #3fb950;
-  --status-attempted: #d29922;
-  --status-pending: #f85149;
-  --status-editorial: #ab7df8;
-
-  /* Rating de dificultad, estilo AtCoder: independiente del status */
-  --rating-easy: #39d353;
-  --rating-medium: #e3b341;
-  --rating-hard: #ff7b72;
-  --rating-unrated: #6e7681;
-
-  /* Verdicts de contest */
+  --bg-base: #0A0A0B;
+  --bg-surface: #0F172A;
+  --bg-elevated: #1E293B;
+  --bg-overlay: #1E293B;
+  --border-default: #1e293b;
+  --border-strong: #334155;
+  --text-primary: #f8fafc;
+  --text-secondary: #94a3b8;
+  --text-muted: #64748b;
+  --link-default: #38bdf8;
+  --link-focus: #7dd3fc;
+  --status-solved: #22c55e;
+  --status-attempted: #eab308;
+  --status-pending: #64748b;
   --verdict-ac: var(--status-solved);
-  --verdict-wa: var(--status-pending);
+  --verdict-wa: #ef4444;
+  --verdict-pending: var(--status-attempted);
+}
+
+[data-theme='light'] {
+  --bg-base: #F8FAFC;
+  --bg-surface: #FFFFFF;
+  --bg-elevated: #F1F5F9;
+  --bg-overlay: #E2E8F0;
+  --border-default: #E2E8F0;
+  --border-strong: #CBD5E1;
+  --text-primary: #0F172A;
+  --text-secondary: #475569;
+  --text-muted: #94A3B8;
+  --link-default: #0284C7;
+  --link-focus: #0369A1;
+  --status-solved: #16A34A;
+  --status-attempted: #D97706;
+  --status-pending: #94A3B8;
+  --verdict-ac: var(--status-solved);
+  --verdict-wa: #DC2626;
+  --verdict-pending: var(--status-attempted);
+}
+
+[data-theme='light-cream'] {
+  --bg-base: #FDFBF7;
+  --bg-surface: #F9F6EE;
+  --bg-elevated: #F2EBE1;
+  --bg-overlay: #EAE0D3;
+  --border-default: #E8E2D9;
+  --border-strong: #D1C5B4;
+  --text-primary: #2D2A26;
+  --text-secondary: #5E5851;
+  --text-muted: #8F877D;
+  --link-default: #B87C4C;
+  --link-focus: #9A653C;
+  --status-solved: #5E8C61;
+  --status-attempted: #D68F49;
+  --status-pending: #B3AAA0;
+  --verdict-ac: var(--status-solved);
+  --verdict-wa: #BC5D5D;
   --verdict-pending: var(--status-attempted);
 }
 

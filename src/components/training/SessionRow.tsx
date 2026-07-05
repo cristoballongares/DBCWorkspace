@@ -61,7 +61,7 @@ export function SessionRow({ session }: { session: SessionData }) {
       </td>
       <td className="px-4 py-2.5 text-xs text-text-muted">{session.notes ?? '-'}</td>
       <td className="px-4 py-2.5">
-        <Button variant="danger" onClick={handleDelete}>
+        <Button variant="destructive" onClick={handleDelete}>
           Eliminar
         </Button>
       </td>
