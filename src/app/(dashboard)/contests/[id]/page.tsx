@@ -5,6 +5,7 @@ import { ContestStatusBadge } from '@/components/contests/ContestStatusBadge';
 import { ContestStatusButton } from '@/components/contests/ContestStatusButton';
 import { DeleteContestButton } from '@/components/contests/DeleteContestButton';
 import { DifficultyBadge } from '@/components/problems/DifficultyBadge';
+import { Button } from '@/components/ui/Button';
 import { Breadcrumbs } from '@/components/ui/Breadcrumbs';
 
 export default async function ContestDetailPage({ params }: { params: { id: string } }) {
@@ -22,6 +23,9 @@ export default async function ContestDetailPage({ params }: { params: { id: stri
         <div className="flex items-center justify-between">
           <h1 className="text-2xl font-semibold text-text-primary">{contest.name}</h1>
           <div className="flex gap-2">
+            <Link href={`/contests/${contest.id}/scoreboard`}>
+              <Button variant="secondary">Scoreboard</Button>
+            </Link>
             <ContestStatusButton contestId={contest.id} status={contest.status} />
             <DeleteContestButton contestId={contest.id} />
           </div>
