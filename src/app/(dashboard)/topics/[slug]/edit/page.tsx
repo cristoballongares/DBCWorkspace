@@ -1,5 +1,5 @@
 import { notFound } from 'next/navigation';
-import { getTopicBySlug } from '@/services/topic.service';
+import { getTopicBySlug, listTopicCategories } from '@/services/topic.service';
 import { listProblems } from '@/services/problem.service';
 import { TopicForm } from '@/components/topics/TopicForm';
 import { Breadcrumbs } from '@/components/ui/Breadcrumbs';
@@ -11,7 +11,7 @@ export default async function EditTopicPage({ params }: { params: { slug: string
     notFound();
   }
 
-  const problems = await listProblems();
+  const [problems, categories] = await Promise.all([listProblems(), listTopicCategories()]);
 
   return (
     <div className="space-y-4">
@@ -25,6 +25,7 @@ export default async function EditTopicPage({ params }: { params: { slug: string
       <h1 className="text-2xl font-semibold text-text-primary">Editar tema: {topic.title}</h1>
       <TopicForm
         problems={problems.map((p) => ({ id: p.id, title: p.title }))}
+        categories={categories}
         initialValues={{
           id: topic.id,
           title: topic.title,

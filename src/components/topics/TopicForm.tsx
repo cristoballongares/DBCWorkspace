@@ -27,9 +27,11 @@ const emptyValues: TopicFormValues = {
 
 export function TopicForm({
   problems,
+  categories,
   initialValues,
 }: {
   problems: SelectableProblem[];
+  categories: string[];
   initialValues?: TopicFormValues;
 }) {
   const router = useRouter();
@@ -101,10 +103,16 @@ export function TopicForm({
           <Input
             id="category"
             required
+            list="topic-categories"
             placeholder="Estructuras de datos"
             value={values.category}
             onChange={(e) => setValues({ ...values, category: e.target.value })}
           />
+          <datalist id="topic-categories">
+            {categories.map((category) => (
+              <option key={category} value={category} />
+            ))}
+          </datalist>
         </div>
       </div>
 

@@ -40,6 +40,15 @@ export async function listTopics() {
   });
 }
 
+export async function listTopicCategories() {
+  const rows = await prisma.notebookEntry.findMany({
+    select: { category: true },
+    distinct: ['category'],
+    orderBy: { category: 'asc' },
+  });
+  return rows.map((r) => r.category);
+}
+
 export async function getTopicBySlug(slug: string) {
   return prisma.notebookEntry.findUnique({
     where: { slug },

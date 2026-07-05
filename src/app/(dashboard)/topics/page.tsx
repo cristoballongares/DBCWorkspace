@@ -4,12 +4,13 @@ import { Button } from '@/components/ui/Button';
 
 export default async function TopicsPage() {
   const topics = await listTopics();
-  const byCategory = new Map<string, typeof topics>();
+  const byCategory = new Map<string, { label: string; items: typeof topics }>();
 
   for (const topic of topics) {
-    const list = byCategory.get(topic.category) ?? [];
-    list.push(topic);
-    byCategory.set(topic.category, list);
+    const key = topic.category.trim().toLowerCase();
+    const group = byCategory.get(key) ?? { label: topic.category.trim(), items: [] };
+    group.items.push(topic);
+    byCategory.set(key, group);
   }
 
   return (
@@ -24,13 +25,13 @@ export default async function TopicsPage() {
       {topics.length === 0 ? (
         <p className="text-sm text-text-muted">Todavia no hay temas registrados.</p>
       ) : (
-        Array.from(byCategory.entries()).map(([category, items]) => (
-          <div key={category} className="space-y-2">
+        Array.from(byCategory.entries()).map(([key, group]) => (
+          <div key={key} className="space-y-2">
             <h2 className="text-sm font-semibold uppercase tracking-wide text-text-muted">
-              {category}
+              {group.label}
             </h2>
             <div className="grid grid-cols-2 gap-3">
-              {items.map((topic) => (
+              {group.items.map((topic) => (
                 <Link
                   key={topic.id}
                   href={`/topics/${topic.slug}`}
