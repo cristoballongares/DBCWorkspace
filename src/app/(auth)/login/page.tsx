@@ -39,7 +39,7 @@ export default function LoginPage() {
     <main className="flex min-h-screen items-center justify-center bg-bg-base">
       <form
         onSubmit={handleSubmit}
-        className="w-full max-w-sm space-y-4 rounded-md border border-border-default bg-bg-surface p-8"
+        className="w-full max-w-sm space-y-5 rounded-md border border-border-default bg-bg-surface p-10 shadow-lg"
       >
         <h1 className="text-xl font-semibold text-text-primary">DBCWorkspace</h1>
         <div className="space-y-2">

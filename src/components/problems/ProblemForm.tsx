@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import type { Difficulty, ProblemStatus } from '@prisma/client';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
+import { Select } from '@/components/ui/Select';
 
 type ProblemFormValues = {
   id?: string;
@@ -113,32 +114,30 @@ export function ProblemForm({ initialValues }: { initialValues?: ProblemFormValu
           <label className="text-sm text-text-secondary" htmlFor="difficulty">
             Dificultad
           </label>
-          <select
+          <Select
             id="difficulty"
             value={values.difficulty}
             onChange={(e) => setValues({ ...values, difficulty: e.target.value as Difficulty })}
-            className="w-full rounded-sm border border-border-default bg-bg-surface px-3 py-2 text-sm text-text-primary"
           >
             <option value="UNRATED">Unrated</option>
             <option value="EASY">Easy</option>
             <option value="MEDIUM">Medium</option>
             <option value="HARD">Hard</option>
-          </select>
+          </Select>
         </div>
         <div className="space-y-2">
           <label className="text-sm text-text-secondary" htmlFor="status">
             Estado
           </label>
-          <select
+          <Select
             id="status"
             value={values.status}
             onChange={(e) => setValues({ ...values, status: e.target.value as ProblemStatus })}
-            className="w-full rounded-sm border border-border-default bg-bg-surface px-3 py-2 text-sm text-text-primary"
           >
             <option value="UNSOLVED">Pendiente</option>
             <option value="SOLVED_INDIVIDUAL">Resuelto individual</option>
             <option value="SOLVED_TEAM">Resuelto equipo</option>
-          </select>
+          </Select>
         </div>
       </div>
 

@@ -3,24 +3,34 @@
 @tailwind utilities;
 
 :root {
-  /* Base */
-  --bg-base: #0d0f12;
-  --bg-surface: #15181d;
-  --bg-elevated: #1c2027;
-  --border-default: #2a2f38;
-  --border-strong: #3a4150;
+  /* Base (GitHub dark dimmed) */
+  --bg-base: #0d1117;
+  --bg-surface: #161b22;
+  --bg-elevated: #21262d;
+  --bg-overlay: #2d333b;
+  --border-default: #30363d;
+  --border-strong: #454c56;
 
   /* Texto */
-  --text-primary: #e8eaed;
-  --text-secondary: #a8adb8;
-  --text-muted: #6b7280;
+  --text-primary: #e6edf3;
+  --text-secondary: #9198a1;
+  --text-muted: #6e7681;
 
-  /* Semanticos de estado (problemas) */
-  --status-solved: #22c55e;
-  --status-attempted: #eab308;
-  --status-pending: #ef4444;
-  --status-editorial: #a855f7;
-  --link-focus: #3b82f6;
+  /* Acento (foco, links, nav activo) */
+  --link-focus: #4493f8;
+  --accent-muted: rgba(68, 147, 248, 0.15);
+
+  /* Semanticos de estado (problemas: resuelto individual/equipo/pendiente) */
+  --status-solved: #3fb950;
+  --status-attempted: #d29922;
+  --status-pending: #f85149;
+  --status-editorial: #ab7df8;
+
+  /* Rating de dificultad, estilo AtCoder: independiente del status */
+  --rating-easy: #39d353;
+  --rating-medium: #e3b341;
+  --rating-hard: #ff7b72;
+  --rating-unrated: #6e7681;
 
   /* Verdicts de contest */
   --verdict-ac: var(--status-solved);
@@ -31,4 +41,13 @@
 body {
   background-color: var(--bg-base);
   color: var(--text-primary);
+}
+
+::selection {
+  background-color: var(--accent-muted);
+}
+
+* {
+  scrollbar-color: var(--border-strong) var(--bg-surface);
+  scrollbar-width: thin;
 }

@@ -1,16 +1,15 @@
 import type { Difficulty } from '@prisma/client';
 
-const difficultyLabel: Record<Difficulty, string> = {
-  EASY: 'Easy',
-  MEDIUM: 'Medium',
-  HARD: 'Hard',
-  UNRATED: 'Unrated',
+const difficultyConfig: Record<Difficulty, { label: string; text: string }> = {
+  EASY: { label: 'Easy', text: 'text-rating-easy' },
+  MEDIUM: { label: 'Medium', text: 'text-rating-medium' },
+  HARD: { label: 'Hard', text: 'text-rating-hard' },
+  UNRATED: { label: 'Unrated', text: 'text-rating-unrated' },
 };
 
 export function DifficultyBadge({ difficulty }: { difficulty: Difficulty }) {
+  const config = difficultyConfig[difficulty];
   return (
-    <span className="rounded-sm border border-border-default px-2 py-0.5 font-mono text-xs text-text-secondary">
-      {difficultyLabel[difficulty]}
-    </span>
+    <span className={`font-mono text-xs font-semibold ${config.text}`}>{config.label}</span>
   );
 }

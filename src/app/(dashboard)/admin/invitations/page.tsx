@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
+import { Select } from '@/components/ui/Select';
 
 type Invitation = {
   id: string;
@@ -61,45 +62,50 @@ export default function InvitationsPage() {
           value={email}
           onChange={(e) => setEmail(e.target.value)}
         />
-        <select
+        <Select
           value={role}
           onChange={(e) => setRole(e.target.value as 'ADMIN' | 'MEMBER')}
-          className="rounded-sm border border-border-default bg-bg-surface px-3 py-2 text-sm text-text-primary"
+          className="w-auto"
         >
           <option value="MEMBER">MEMBER</option>
           <option value="ADMIN">ADMIN</option>
-        </select>
+        </Select>
         <Button type="submit">Generar link</Button>
       </form>
 
       {error && <p className="text-sm text-status-pending">{error}</p>}
 
-      <table className="w-full text-sm">
-        <thead>
-          <tr className="border-b border-border-default text-left text-text-secondary">
-            <th className="py-2">Email</th>
-            <th className="py-2">Rol</th>
-            <th className="py-2">Estado</th>
-            <th className="py-2">Link</th>
-          </tr>
-        </thead>
-        <tbody>
-          {invitations.map((invitation) => (
-            <tr key={invitation.id} className="border-b border-border-default text-text-primary">
-              <td className="py-2">{invitation.email}</td>
-              <td className="py-2">{invitation.role}</td>
-              <td className="py-2">
-                {invitation.acceptedAt ? 'Aceptada' : 'Pendiente'}
-              </td>
-              <td className="py-2 font-mono text-xs text-link-focus">
-                {invitation.acceptedAt
-                  ? '—'
-                  : `${typeof window !== 'undefined' ? window.location.origin : ''}/invite/${invitation.token}`}
-              </td>
+      <div className="overflow-x-auto rounded-md border border-border-default">
+        <table className="w-full text-left text-sm">
+          <thead>
+            <tr className="border-b border-border-default text-xs uppercase tracking-wide text-text-muted">
+              <th className="px-4 py-2.5 font-medium">Email</th>
+              <th className="px-4 py-2.5 font-medium">Rol</th>
+              <th className="px-4 py-2.5 font-medium">Estado</th>
+              <th className="px-4 py-2.5 font-medium">Link</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {invitations.map((invitation) => (
+              <tr
+                key={invitation.id}
+                className="border-b border-border-default last:border-b-0 hover:bg-bg-elevated"
+              >
+                <td className="px-4 py-2.5 text-text-primary">{invitation.email}</td>
+                <td className="px-4 py-2.5 text-text-primary">{invitation.role}</td>
+                <td className="px-4 py-2.5 text-text-primary">
+                  {invitation.acceptedAt ? 'Aceptada' : 'Pendiente'}
+                </td>
+                <td className="px-4 py-2.5 font-mono text-xs text-link-focus">
+                  {invitation.acceptedAt
+                    ? '-'
+                    : `${typeof window !== 'undefined' ? window.location.origin : ''}/invite/${invitation.token}`}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
     </div>
   );
 }

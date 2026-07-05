@@ -24,7 +24,7 @@ export function DeleteProblemButton({ problemId }: { problemId: string }) {
   }
 
   return (
-    <Button variant="secondary" onClick={handleDelete} disabled={isDeleting}>
+    <Button variant="danger" onClick={handleDelete} disabled={isDeleting}>
       {isDeleting ? 'Eliminando...' : 'Eliminar'}
     </Button>
   );
