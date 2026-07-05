@@ -1,5 +1,5 @@
 import { notFound } from 'next/navigation';
-import { getTopicBySlug, listTopicCategories } from '@/services/topic.service';
+import { getTopicBySlug, listTopicCategories, listParentCandidates } from '@/services/topic.service';
 import { listProblems } from '@/services/problem.service';
 import { TopicForm } from '@/components/topics/TopicForm';
 import { Breadcrumbs } from '@/components/ui/Breadcrumbs';
@@ -11,7 +11,11 @@ export default async function EditTopicPage({ params }: { params: { slug: string
     notFound();
   }
 
-  const [problems, categories] = await Promise.all([listProblems(), listTopicCategories()]);
+  const [problems, categories, parents] = await Promise.all([
+    listProblems(),
+    listTopicCategories(),
+    listParentCandidates(topic.id),
+  ]);
 
   return (
     <div className="space-y-4">
@@ -26,6 +30,7 @@ export default async function EditTopicPage({ params }: { params: { slug: string
       <TopicForm
         problems={problems.map((p) => ({ id: p.id, title: p.title }))}
         categories={categories}
+        parents={parents}
         initialValues={{
           id: topic.id,
           title: topic.title,
@@ -33,6 +38,8 @@ export default async function EditTopicPage({ params }: { params: { slug: string
           content: topic.content,
           commonPitfalls: topic.commonPitfalls ?? '',
           problemIds: topic.exercises.map((e) => e.problemId),
+          parentId: topic.parentId ?? '',
+          order: topic.order.toString(),
         }}
       />
     </div>

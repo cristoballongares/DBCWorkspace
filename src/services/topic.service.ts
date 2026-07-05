@@ -11,6 +11,22 @@ const topicInclude = {
   exercises: {
     include: { problem: { select: { id: true, title: true, difficulty: true } } },
   },
+  parent: {
+    select: {
+      id: true,
+      slug: true,
+      title: true,
+      children: {
+        select: { id: true, slug: true, title: true },
+        orderBy: [{ order: 'asc' as const }, { title: 'asc' as const }],
+      },
+    },
+  },
+  children: {
+    select: { id: true, slug: true, title: true, order: true },
+    orderBy: [{ order: 'asc' as const }, { title: 'asc' as const }],
+  },
+  _count: { select: { children: true } },
 };
 
 function slugify(value: string) {
@@ -33,8 +49,11 @@ async function uniqueSlug(title: string) {
   return slug;
 }
 
+// Solo temas de nivel superior (sin padre); los subtemas se navegan desde
+// el detalle de su tema padre para no saturar el listado principal.
 export async function listTopics() {
   return prisma.notebookEntry.findMany({
+    where: { parentId: null },
     include: topicInclude,
     orderBy: [{ category: 'asc' }, { title: 'asc' }],
   });
@@ -47,6 +66,14 @@ export async function listTopicCategories() {
     orderBy: { category: 'asc' },
   });
   return rows.map((r) => r.category);
+}
+
+export async function listParentCandidates(excludeId?: string) {
+  return prisma.notebookEntry.findMany({
+    where: { parentId: null, id: excludeId ? { not: excludeId } : undefined },
+    select: { id: true, title: true },
+    orderBy: { title: 'asc' },
+  });
 }
 
 export async function getTopicBySlug(slug: string) {
@@ -67,6 +94,8 @@ export async function createTopic(input: CreateTopicInput, authorId: string) {
       content: input.content,
       commonPitfalls: input.commonPitfalls || null,
       authorId,
+      parentId: input.parentId || null,
+      order: input.order ?? 0,
       exercises: {
         create: input.problemIds.map((problemId) => ({ problem: { connect: { id: problemId } } })),
       },
@@ -91,6 +120,8 @@ export async function updateTopic(id: string, input: UpdateTopicInput, editorId:
   if (input.category !== undefined) data.category = input.category;
   if (input.content !== undefined) data.content = input.content;
   if (input.commonPitfalls !== undefined) data.commonPitfalls = input.commonPitfalls || null;
+  if (input.parentId !== undefined) data.parentId = input.parentId || null;
+  if (input.order !== undefined) data.order = input.order;
 
   if (input.problemIds !== undefined) {
     data.exercises = {

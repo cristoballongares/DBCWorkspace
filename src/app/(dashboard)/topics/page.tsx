@@ -39,7 +39,9 @@ export default async function TopicsPage() {
                 >
                   <p className="font-medium text-text-primary">{topic.title}</p>
                   <p className="mt-1 text-xs text-text-muted">
-                    {topic.exercises.length} ejercicio{topic.exercises.length === 1 ? '' : 's'}
+                    {topic._count.children > 0
+                      ? `${topic._count.children} subtema${topic._count.children === 1 ? '' : 's'}`
+                      : `${topic.exercises.length} ejercicio${topic.exercises.length === 1 ? '' : 's'}`}
                   </p>
                 </Link>
               ))}

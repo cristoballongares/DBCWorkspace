@@ -4,9 +4,11 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
+import { Select } from '@/components/ui/Select';
 import { MarkdownEditor } from '@/components/editor/MarkdownEditor';
 
 type SelectableProblem = { id: string; title: string };
+type SelectableParent = { id: string; title: string };
 
 type TopicFormValues = {
   id?: string;
@@ -15,6 +17,8 @@ type TopicFormValues = {
   content: string;
   commonPitfalls: string;
   problemIds: string[];
+  parentId: string;
+  order: string;
 };
 
 const emptyValues: TopicFormValues = {
@@ -23,15 +27,19 @@ const emptyValues: TopicFormValues = {
   content: '',
   commonPitfalls: '',
   problemIds: [],
+  parentId: '',
+  order: '0',
 };
 
 export function TopicForm({
   problems,
   categories,
+  parents,
   initialValues,
 }: {
   problems: SelectableProblem[];
   categories: string[];
+  parents: SelectableParent[];
   initialValues?: TopicFormValues;
 }) {
   const router = useRouter();
@@ -61,6 +69,8 @@ export function TopicForm({
       content: values.content,
       commonPitfalls: values.commonPitfalls || undefined,
       problemIds: values.problemIds,
+      parentId: values.parentId || undefined,
+      order: values.order ? Number(values.order) : 0,
     };
 
     const response = await fetch(isEditing ? `/api/topics/${initialValues!.id}` : '/api/topics', {
@@ -113,6 +123,37 @@ export function TopicForm({
               <option key={category} value={category} />
             ))}
           </datalist>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-2 gap-4">
+        <div className="space-y-2">
+          <label className="text-sm text-text-secondary" htmlFor="parentId">
+            Tema padre (opcional)
+          </label>
+          <Select
+            id="parentId"
+            value={values.parentId}
+            onChange={(e) => setValues({ ...values, parentId: e.target.value })}
+          >
+            <option value="">Ninguno (tema de nivel superior)</option>
+            {parents.map((parent) => (
+              <option key={parent.id} value={parent.id}>
+                {parent.title}
+              </option>
+            ))}
+          </Select>
+        </div>
+        <div className="space-y-2">
+          <label className="text-sm text-text-secondary" htmlFor="order">
+            Orden dentro del tema padre
+          </label>
+          <Input
+            id="order"
+            type="number"
+            value={values.order}
+            onChange={(e) => setValues({ ...values, order: e.target.value })}
+          />
         </div>
       </div>
 

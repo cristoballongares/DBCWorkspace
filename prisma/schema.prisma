@@ -277,12 +277,18 @@ model NotebookEntry {
   content        String
   commonPitfalls String?
   authorId       String
+  parentId       String?
+  order          Int      @default(0)
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
 
   author     User            @relation(fields: [authorId], references: [id])
   changeLogs ChangeLog[]
   exercises  TopicProblem[]
+  parent     NotebookEntry?  @relation("TopicChildren", fields: [parentId], references: [id], onDelete: Cascade)
+  children   NotebookEntry[] @relation("TopicChildren")
+
+  @@index([parentId])
 
   @@index([category])
 }

@@ -14,9 +14,23 @@ export default async function TopicDetailPage({ params }: { params: { slug: stri
     notFound();
   }
 
+  const siblings = topic.parent?.children ?? [];
+  const siblingIndex = siblings.findIndex((s) => s.id === topic.id);
+  const prevSibling = siblingIndex > 0 ? siblings[siblingIndex - 1] : null;
+  const nextSibling =
+    siblingIndex >= 0 && siblingIndex < siblings.length - 1 ? siblings[siblingIndex + 1] : null;
+
   return (
     <div className="max-w-4xl space-y-4">
-      <Breadcrumbs items={[{ label: 'Temas', href: '/topics' }, { label: topic.title }]} />
+      <Breadcrumbs
+        items={[
+          { label: 'Temas', href: '/topics' },
+          ...(topic.parent
+            ? [{ label: topic.parent.title, href: `/topics/${topic.parent.slug}` }]
+            : []),
+          { label: topic.title },
+        ]}
+      />
 
       <div className="flex items-center justify-between">
         <div>
@@ -31,6 +45,23 @@ export default async function TopicDetailPage({ params }: { params: { slug: stri
         </div>
       </div>
 
+      {(prevSibling || nextSibling) && (
+        <div className="flex items-center justify-between text-sm">
+          {prevSibling ? (
+            <Link href={`/topics/${prevSibling.slug}`} className="text-link-focus hover:underline">
+              ← {prevSibling.title}
+            </Link>
+          ) : (
+            <span />
+          )}
+          {nextSibling && (
+            <Link href={`/topics/${nextSibling.slug}`} className="text-link-focus hover:underline">
+              {nextSibling.title} →
+            </Link>
+          )}
+        </div>
+      )}
+
       <div className="rounded-md border border-border-default bg-bg-surface p-6">
         <MarkdownContent source={topic.content} />
       </div>
@@ -41,6 +72,25 @@ export default async function TopicDetailPage({ params }: { params: { slug: stri
           <p className="mt-1 whitespace-pre-wrap text-sm text-text-secondary">
             {topic.commonPitfalls}
           </p>
+        </div>
+      )}
+
+      {topic.children.length > 0 && (
+        <div className="space-y-2">
+          <h2 className="text-lg font-semibold text-text-primary">
+            Subtemas ({topic.children.length})
+          </h2>
+          <div className="grid grid-cols-2 gap-3">
+            {topic.children.map((child) => (
+              <Link
+                key={child.id}
+                href={`/topics/${child.slug}`}
+                className="rounded-md border border-border-default bg-bg-surface p-3 text-sm font-medium text-text-primary hover:bg-bg-elevated"
+              >
+                {child.title}
+              </Link>
+            ))}
+          </div>
         </div>
       )}
 
