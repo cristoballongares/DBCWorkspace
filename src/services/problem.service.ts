@@ -1,4 +1,5 @@
 import { prisma } from '@/lib/prisma';
+import type { Difficulty, ProblemStatus } from '@prisma/client';
 import type { createProblemSchema, updateProblemSchema } from '@/lib/validations/problem';
 import type { z } from 'zod';
 
@@ -24,11 +25,28 @@ async function resolveTagIds(tagNames: string[]) {
   return tags.map((tag) => tag.id);
 }
 
-export async function listProblems() {
+export type ProblemFilters = {
+  q?: string;
+  tag?: string;
+  difficulty?: string;
+  status?: string;
+};
+
+export async function listProblems(filters: ProblemFilters = {}) {
   return prisma.problem.findMany({
+    where: {
+      title: filters.q ? { contains: filters.q, mode: 'insensitive' } : undefined,
+      difficulty: filters.difficulty ? (filters.difficulty as Difficulty) : undefined,
+      status: filters.status ? (filters.status as ProblemStatus) : undefined,
+      tags: filters.tag ? { some: { tag: { name: filters.tag } } } : undefined,
+    },
     include: problemInclude,
     orderBy: { createdAt: 'desc' },
   });
+}
+
+export async function listTags() {
+  return prisma.tag.findMany({ orderBy: { name: 'asc' } });
 }
 
 export async function getProblem(id: string) {
