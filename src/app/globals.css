@@ -1,0 +1,34 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  /* Base */
+  --bg-base: #0d0f12;
+  --bg-surface: #15181d;
+  --bg-elevated: #1c2027;
+  --border-default: #2a2f38;
+  --border-strong: #3a4150;
+
+  /* Texto */
+  --text-primary: #e8eaed;
+  --text-secondary: #a8adb8;
+  --text-muted: #6b7280;
+
+  /* Semanticos de estado (problemas) */
+  --status-solved: #22c55e;
+  --status-attempted: #eab308;
+  --status-pending: #ef4444;
+  --status-editorial: #a855f7;
+  --link-focus: #3b82f6;
+
+  /* Verdicts de contest */
+  --verdict-ac: var(--status-solved);
+  --verdict-wa: var(--status-pending);
+  --verdict-pending: var(--status-attempted);
+}
+
+body {
+  background-color: var(--bg-base);
+  color: var(--text-primary);
+}
