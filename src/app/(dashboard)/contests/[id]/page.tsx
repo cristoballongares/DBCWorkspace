@@ -73,6 +73,44 @@ export default async function ContestDetailPage({ params }: { params: { id: stri
           </table>
         </div>
       </div>
+
+      {contest.status === 'FINISHED' && (
+        <div className="space-y-3 pt-4">
+          <div className="flex items-center justify-between">
+            <h2 className="text-lg font-semibold text-text-primary">Post-mortem</h2>
+            <Link href={`/contests/${contest.id}/postmortem/edit`}>
+              <Button variant="secondary">
+                {contest.postMortem ? 'Editar post-mortem' : 'Agregar post-mortem'}
+              </Button>
+            </Link>
+          </div>
+
+          {contest.postMortem ? (
+            <div className="space-y-3 rounded-md border border-border-default bg-bg-surface p-4 text-sm">
+              {contest.postMortem.whatWorked && (
+                <div>
+                  <p className="text-xs uppercase tracking-wide text-text-muted">Que funciono</p>
+                  <p className="whitespace-pre-wrap text-text-secondary">{contest.postMortem.whatWorked}</p>
+                </div>
+              )}
+              {contest.postMortem.whatFailed && (
+                <div>
+                  <p className="text-xs uppercase tracking-wide text-text-muted">Que fallo</p>
+                  <p className="whitespace-pre-wrap text-text-secondary">{contest.postMortem.whatFailed}</p>
+                </div>
+              )}
+              {contest.postMortem.actionItems && (
+                <div>
+                  <p className="text-xs uppercase tracking-wide text-text-muted">Acciones a tomar</p>
+                  <p className="whitespace-pre-wrap text-text-secondary">{contest.postMortem.actionItems}</p>
+                </div>
+              )}
+            </div>
+          ) : (
+            <p className="text-sm text-text-muted">Todavia no hay post-mortem para este contest.</p>
+          )}
+        </div>
+      )}
     </div>
   );
 }
