@@ -14,7 +14,7 @@ type SolutionCardData = {
 
 export function SolutionCard({ solution }: { solution: SolutionCardData }) {
   return (
-    <div className="space-y-3 rounded-md border border-border-default bg-bg-surface p-4">
+    <div className="min-w-0 space-y-3 rounded-md border border-border-default bg-bg-surface p-4">
       <div className="flex items-center justify-between">
         <div className="text-sm text-text-secondary">
           <span className="font-medium text-text-primary">{solution.author?.name ?? "Usuario eliminado"}</span>
@@ -30,10 +30,12 @@ export function SolutionCard({ solution }: { solution: SolutionCardData }) {
         </div>
       </div>
 
-      <MarkdownContent source={solution.content} />
+      <div className="overflow-x-auto">
+        <MarkdownContent source={solution.content} />
+      </div>
 
       {solution.reasoning && (
-        <p className="whitespace-pre-wrap text-sm text-text-secondary">{solution.reasoning}</p>
+        <p className="whitespace-pre-wrap break-words text-sm text-text-secondary">{solution.reasoning}</p>
       )}
     </div>
   );

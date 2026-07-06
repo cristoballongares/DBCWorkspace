@@ -25,7 +25,7 @@ export default async function ProblemDetailPage({ params }: { params: { id: stri
   const editorial = await getEditorialByProblem(problem.id);
 
   return (
-    <div className="max-w-2xl space-y-4">
+    <div className="space-y-4">
       <Breadcrumbs items={[{ label: 'Problemas', href: '/problems' }, { label: problem.title }]} />
 
       <div className="rounded-md border border-border-default bg-bg-surface p-6">
@@ -63,9 +63,9 @@ export default async function ProblemDetailPage({ params }: { params: { id: stri
         )}
 
         {problem.statementNotes && (
-          <p className="mt-3 whitespace-pre-wrap text-sm text-text-secondary">
-            {problem.statementNotes}
-          </p>
+          <div className="mt-3 text-text-secondary">
+            <MarkdownContent source={problem.statementNotes} />
+          </div>
         )}
       </div>
 
@@ -73,10 +73,10 @@ export default async function ProblemDetailPage({ params }: { params: { id: stri
         <Tabs defaultValue="editorial" className="w-full">
           <div className="flex items-center justify-between mb-4">
             <TabsList className="bg-bg-elevated border border-border-default">
-              <TabsTrigger value="editorial" className="data-[state=active]:bg-bg-surface data-[state=active]:text-text-primary text-text-muted">
+              <TabsTrigger value="editorial" className="data-[active]:bg-bg-surface data-[active]:text-text-primary text-text-muted">
                 Editorial Consolidada
               </TabsTrigger>
-              <TabsTrigger value="solutions" className="data-[state=active]:bg-bg-surface data-[state=active]:text-text-primary text-text-muted">
+              <TabsTrigger value="solutions" className="data-[active]:bg-bg-surface data-[active]:text-text-primary text-text-muted">
                 Soluciones Individuales ({solutions.length})
               </TabsTrigger>
             </TabsList>

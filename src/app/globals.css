@@ -79,3 +79,8 @@ body {
   scrollbar-color: var(--border-strong) var(--bg-surface);
   scrollbar-width: thin;
 }
+
+.katex-display {
+  overflow-x: auto;
+  overflow-y: hidden;
+}
