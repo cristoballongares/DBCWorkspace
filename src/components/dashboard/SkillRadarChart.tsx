@@ -4,6 +4,9 @@ const SIZE = 300;
 const CENTER = SIZE / 2;
 const RADIUS = 100;
 const RINGS = [1 / 3, 2 / 3, 1];
+// Extra room around the hexagon so long area labels (e.g. "Programacion
+// Dinamica") don't get clipped by the SVG's own viewBox edge.
+const LABEL_MARGIN = 130;
 
 function pointAt(index: number, count: number, fraction: number) {
   const angle = (-90 + (360 / count) * index) * (Math.PI / 180);
@@ -25,7 +28,12 @@ export function SkillRadarChart({ stats }: { stats: SkillStat[] }) {
   const dataPoints = stats.map((stat, i) => pointAt(i, count, stat.percentage / 100));
 
   return (
-    <svg viewBox={`0 0 ${SIZE} ${SIZE}`} role="img" aria-label="Radar de habilidades por area" className="w-full max-w-[300px]">
+    <svg
+      viewBox={`${-LABEL_MARGIN} ${-LABEL_MARGIN} ${SIZE + 2 * LABEL_MARGIN} ${SIZE + 2 * LABEL_MARGIN}`}
+      role="img"
+      aria-label="Radar de habilidades por area"
+      className="w-full max-w-[380px]"
+    >
       {RINGS.map((fraction) => (
         <polygon
           key={fraction}
@@ -62,13 +70,7 @@ export function SkillRadarChart({ stats }: { stats: SkillStat[] }) {
       {stats.map((stat, i) => {
         const p = dataPoints[i];
         if (!p) return null;
-        return (
-          <circle key={stat.area} cx={p.x} cy={p.y} r={3} fill="var(--link-focus)">
-            <title>
-              {stat.area}: {stat.solved}/{stat.total} ({stat.percentage}%)
-            </title>
-          </circle>
-        );
+        return <circle key={stat.area} cx={p.x} cy={p.y} r={3} fill="var(--link-focus)" />;
       })}
 
       {stats.map((stat, i) => {
