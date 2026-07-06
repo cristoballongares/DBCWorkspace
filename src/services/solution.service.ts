@@ -8,6 +8,7 @@ type UpdateSolutionInput = z.infer<typeof updateSolutionSchema>;
 
 const solutionInclude = {
   author: { select: { id: true, name: true } },
+  problem: { select: { title: true } },
 };
 
 export async function listSolutionsByProblem(problemId: string) {
@@ -47,7 +48,7 @@ export async function createSolution(
   await logChange({
     entityType: 'SOLUTION',
     editorId: authorId,
-    diffSummary: `Solucion creada en problema ${problemId}`,
+    diffSummary: `Solucion creada en "${solution.problem.title}"`,
     problemId,
     solutionId: solution.id,
   });
@@ -72,7 +73,7 @@ export async function updateSolution(id: string, input: UpdateSolutionInput, edi
   await logChange({
     entityType: 'SOLUTION',
     editorId,
-    diffSummary: `Solucion actualizada en problema ${solution.problemId}`,
+    diffSummary: `Solucion actualizada en "${solution.problem.title}"`,
     problemId: solution.problemId,
     solutionId: solution.id,
   });
@@ -81,13 +82,13 @@ export async function updateSolution(id: string, input: UpdateSolutionInput, edi
 }
 
 export async function deleteSolution(id: string, editorId: string) {
-  const solution = await prisma.solution.delete({ where: { id } });
+  const solution = await prisma.solution.delete({ where: { id }, include: solutionInclude });
   await syncProblemStatus(solution.problemId);
 
   await logChange({
     entityType: 'SOLUTION',
     editorId,
-    diffSummary: `Solucion eliminada en problema ${solution.problemId}`,
+    diffSummary: `Solucion eliminada en "${solution.problem.title}"`,
     problemId: solution.problemId,
   });
 

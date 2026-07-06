@@ -20,6 +20,7 @@
   --verdict-ac: var(--status-solved);
   --verdict-wa: #ef4444;
   --verdict-pending: var(--status-attempted);
+  --accent-muted: rgba(56, 189, 248, 0.35);
 }
 
 [data-theme='light'] {
@@ -40,6 +41,7 @@
   --verdict-ac: var(--status-solved);
   --verdict-wa: #DC2626;
   --verdict-pending: var(--status-attempted);
+  --accent-muted: rgba(2, 132, 199, 0.25);
 }
 
 [data-theme='light-cream'] {
@@ -60,6 +62,7 @@
   --verdict-ac: var(--status-solved);
   --verdict-wa: #BC5D5D;
   --verdict-pending: var(--status-attempted);
+  --accent-muted: rgba(184, 124, 76, 0.3);
 }
 
 body {
@@ -69,6 +72,7 @@ body {
 
 ::selection {
   background-color: var(--accent-muted);
+  color: var(--text-primary);
 }
 
 * {

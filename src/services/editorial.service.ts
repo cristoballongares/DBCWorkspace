@@ -7,6 +7,7 @@ type UpsertEditorialInput = z.infer<typeof upsertEditorialSchema>;
 
 const editorialInclude = {
   author: { select: { id: true, name: true } },
+  problem: { select: { title: true } },
 };
 
 export async function getEditorialByProblem(problemId: string) {
@@ -31,7 +32,7 @@ export async function upsertEditorial(
   await logChange({
     entityType: 'EDITORIAL',
     editorId: authorId,
-    diffSummary: `Editorial guardado para problema ${problemId}`,
+    diffSummary: `Editorial guardado para "${editorial.problem.title}"`,
     problemId,
     editorialId: editorial.id,
   });
@@ -40,12 +41,15 @@ export async function upsertEditorial(
 }
 
 export async function deleteEditorial(problemId: string, editorId: string) {
-  const editorial = await prisma.editorial.delete({ where: { problemId } });
+  const editorial = await prisma.editorial.delete({
+    where: { problemId },
+    include: editorialInclude,
+  });
 
   await logChange({
     entityType: 'EDITORIAL',
     editorId,
-    diffSummary: `Editorial eliminado para problema ${problemId}`,
+    diffSummary: `Editorial eliminado para "${editorial.problem.title}"`,
     problemId,
   });
 

@@ -44,7 +44,7 @@ function Calendar({
         day_range_end: "day-range-end",
         day_selected:
           "bg-link-focus text-bg-base hover:bg-link-focus hover:text-bg-base focus:bg-link-focus focus:text-bg-base",
-        day_today: "bg-bg-elevated text-text-primary",
+        day_today: "ring-2 ring-inset ring-status-attempted text-text-primary font-semibold",
         day_outside:
           "day-outside text-text-muted opacity-50 aria-selected:bg-bg-elevated/50 aria-selected:text-text-muted aria-selected:opacity-30",
         day_disabled: "text-text-muted opacity-50",
