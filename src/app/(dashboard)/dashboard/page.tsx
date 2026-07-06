@@ -4,7 +4,8 @@ import { authOptions } from '@/lib/auth';
 import { getDashboardData } from '@/services/dashboard.service';
 import { DashboardCalendar } from '@/components/dashboard/DashboardCalendar';
 import { TodoList } from '@/components/dashboard/TodoList';
-import { Trophy, CheckCircle2, TrendingUp, CalendarDays, Activity } from 'lucide-react';
+import { SkillRadarChart } from '@/components/dashboard/SkillRadarChart';
+import { Trophy, CheckCircle2, TrendingUp, CalendarDays, Activity, Hexagon } from 'lucide-react';
 
 export default async function DashboardPage() {
   const session = await getServerSession(authOptions);
@@ -168,6 +169,31 @@ export default async function DashboardPage() {
           </div>
 
           <TodoList initialTodos={data.publicTodos} />
+        </div>
+      </div>
+
+      <div className="rounded-xl border border-border-default bg-bg-surface p-6">
+        <h2 className="text-sm font-semibold text-text-primary uppercase tracking-wider mb-4 flex items-center gap-2">
+          <Hexagon className="h-4 w-4 text-link-focus" /> Mis Áreas Fuertes
+        </h2>
+        <div className="flex flex-col items-center gap-6 md:flex-row md:items-center md:justify-center">
+          <div className="flex justify-center">
+            <SkillRadarChart stats={data.skillStats} />
+          </div>
+          <ul className="w-full max-w-xs space-y-2">
+            {data.skillStats.map((stat) => (
+              <li key={stat.area} className="flex items-center justify-between text-sm">
+                <span className="text-text-secondary">{stat.area}</span>
+                {stat.total === 0 ? (
+                  <span className="text-xs text-text-muted italic">sin problemas aún</span>
+                ) : (
+                  <span className="font-mono text-xs text-text-primary">
+                    {stat.solved}/{stat.total} ({stat.percentage}%)
+                  </span>
+                )}
+              </li>
+            ))}
+          </ul>
         </div>
       </div>
     </div>

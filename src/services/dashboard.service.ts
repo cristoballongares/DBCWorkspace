@@ -1,8 +1,9 @@
 import { prisma } from '@/lib/prisma';
 import { getCurrentRatings } from '@/services/rating.service';
+import { getSkillStats } from '@/services/skill.service';
 
 export async function getDashboardData(userId: string) {
-  const [solvedProblemIds, totalProblems, upcomingContests, recentActivity, ratings, publicTodos] =
+  const [solvedProblemIds, totalProblems, upcomingContests, recentActivity, ratings, publicTodos, skillStats] =
     await Promise.all([
       prisma.solution.findMany({
         where: { authorId: userId },
@@ -30,6 +31,7 @@ export async function getDashboardData(userId: string) {
         orderBy: { createdAt: 'asc' },
         include: { author: { select: { name: true } } },
       }),
+      getSkillStats(userId),
     ]);
 
   const myRating = ratings.find((r) => r.id === userId) ?? null;
@@ -41,6 +43,7 @@ export async function getDashboardData(userId: string) {
     recentActivity,
     myRating,
     publicTodos,
+    skillStats,
   };
 }
 
