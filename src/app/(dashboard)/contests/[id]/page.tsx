@@ -26,6 +26,9 @@ export default async function ContestDetailPage({ params }: { params: { id: stri
             <Link href={`/contests/${contest.id}/scoreboard`}>
               <Button variant="secondary">Scoreboard</Button>
             </Link>
+            <Link href={`/contests/${contest.id}/edit`}>
+              <Button variant="secondary">Editar</Button>
+            </Link>
             <ContestStatusButton contestId={contest.id} status={contest.status} />
             <DeleteContestButton contestId={contest.id} />
           </div>

@@ -23,4 +23,5 @@ export const updateContestSchema = z.object({
   penaltyMin: z.number().int().nonnegative().optional(),
   freezeMin: z.number().int().nonnegative().optional(),
   status: contestStatusEnum.optional(),
+  problems: z.array(contestProblemInputSchema).optional(),
 });

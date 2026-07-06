@@ -9,14 +9,39 @@ const LABELS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
 
 type SelectableProblem = { id: string; title: string };
 
-export function ContestForm({ problems }: { problems: SelectableProblem[] }) {
+function toDatetimeLocal(date: Date) {
+  const pad = (n: number) => String(n).padStart(2, '0');
+  return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}T${pad(date.getHours())}:${pad(date.getMinutes())}`;
+}
+
+type ExistingContest = {
+  id: string;
+  name: string;
+  startTime: string | Date;
+  durationMin: number;
+  penaltyMin: number;
+  freezeMin: number;
+  problems: { problemId: string; label: string }[];
+};
+
+export function ContestForm({
+  problems,
+  contest,
+}: {
+  problems: SelectableProblem[];
+  contest?: ExistingContest;
+}) {
   const router = useRouter();
-  const [name, setName] = useState('');
-  const [startTime, setStartTime] = useState('');
-  const [durationMin, setDurationMin] = useState('300');
-  const [penaltyMin, setPenaltyMin] = useState('20');
-  const [freezeMin, setFreezeMin] = useState('60');
-  const [selected, setSelected] = useState<Record<string, string>>({});
+  const [name, setName] = useState(contest?.name ?? '');
+  const [startTime, setStartTime] = useState(
+    contest ? toDatetimeLocal(new Date(contest.startTime)) : ''
+  );
+  const [durationMin, setDurationMin] = useState(String(contest?.durationMin ?? 300));
+  const [penaltyMin, setPenaltyMin] = useState(String(contest?.penaltyMin ?? 20));
+  const [freezeMin, setFreezeMin] = useState(String(contest?.freezeMin ?? 60));
+  const [selected, setSelected] = useState<Record<string, string>>(
+    Object.fromEntries(contest?.problems.map((p) => [p.problemId, p.label]) ?? [])
+  );
   const [error, setError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -43,8 +68,8 @@ export function ContestForm({ problems }: { problems: SelectableProblem[] }) {
 
     setIsSubmitting(true);
 
-    const response = await fetch('/api/contests', {
-      method: 'POST',
+    const response = await fetch(contest ? `/api/contests/${contest.id}` : '/api/contests', {
+      method: contest ? 'PATCH' : 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         name,
@@ -59,12 +84,12 @@ export function ContestForm({ problems }: { problems: SelectableProblem[] }) {
     setIsSubmitting(false);
 
     if (!response.ok) {
-      setError('No se pudo crear el contest');
+      setError(contest ? 'No se pudo guardar el contest' : 'No se pudo crear el contest');
       return;
     }
 
-    const contest = await response.json();
-    router.push(`/contests/${contest.id}`);
+    const saved = await response.json();
+    router.push(`/contests/${saved.id}`);
     router.refresh();
   }
 
@@ -156,7 +181,13 @@ export function ContestForm({ problems }: { problems: SelectableProblem[] }) {
       {error && <p className="text-sm text-status-pending">{error}</p>}
 
       <Button type="submit" disabled={isSubmitting}>
-        {isSubmitting ? 'Creando...' : 'Crear contest'}
+        {isSubmitting
+          ? contest
+            ? 'Guardando...'
+            : 'Creando...'
+          : contest
+            ? 'Guardar cambios'
+            : 'Crear contest'}
       </Button>
     </form>
   );

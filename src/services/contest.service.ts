@@ -59,10 +59,53 @@ export async function createContest(input: CreateContestInput, editorId: string)
 }
 
 export async function updateContest(id: string, input: UpdateContestInput) {
-  const contest = await prisma.contest.update({
-    where: { id },
-    data: input,
-    include: contestInclude,
+  const { problems, ...rest } = input;
+
+  const contest = await prisma.$transaction(async (tx) => {
+    if (problems) {
+      const existing = await tx.contestProblem.findMany({ where: { contestId: id } });
+      const existingByProblemId = new Map(existing.map((cp) => [cp.problemId, cp]));
+      const incomingProblemIds = new Set(problems.map((p) => p.problemId));
+
+      const toDelete = existing.filter((cp) => !incomingProblemIds.has(cp.problemId));
+      if (toDelete.length > 0) {
+        await tx.contestProblem.deleteMany({
+          where: { id: { in: toDelete.map((cp) => cp.id) } },
+        });
+      }
+
+      // Relabel survivors to temp values first so swapped labels don't collide
+      // with the @@unique([contestId, label]) constraint mid-transaction.
+      for (const [index, p] of problems.entries()) {
+        const current = existingByProblemId.get(p.problemId);
+        if (current) {
+          await tx.contestProblem.update({
+            where: { id: current.id },
+            data: { label: `_tmp_${index}` },
+          });
+        }
+      }
+
+      for (const [index, p] of problems.entries()) {
+        const current = existingByProblemId.get(p.problemId);
+        if (current) {
+          await tx.contestProblem.update({
+            where: { id: current.id },
+            data: { label: p.label, order: index },
+          });
+        } else {
+          await tx.contestProblem.create({
+            data: { contestId: id, problemId: p.problemId, label: p.label, order: index },
+          });
+        }
+      }
+    }
+
+    return tx.contest.update({
+      where: { id },
+      data: rest,
+      include: contestInclude,
+    });
   });
 
   if (input.status === 'FINISHED') {
