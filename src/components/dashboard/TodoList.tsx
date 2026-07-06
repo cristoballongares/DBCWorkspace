@@ -10,7 +10,7 @@ type PublicTodo = {
   id: string;
   text: string;
   completed: boolean;
-  author: { name: string };
+  author: { name: string } | null;
 };
 
 export function TodoList({ initialTodos }: { initialTodos: PublicTodo[] }) {
@@ -96,7 +96,7 @@ export function TodoList({ initialTodos }: { initialTodos: PublicTodo[] }) {
                 <span className={`text-sm break-words ${todo.completed ? 'line-through text-text-muted' : 'text-text-primary'}`}>
                   {todo.text}
                 </span>
-                <span className="text-[10px] text-text-muted">Por: {todo.author.name}</span>
+                <span className="text-[10px] text-text-muted">Por: {todo.author?.name ?? "Usuario eliminado"}</span>
               </div>
             </div>
           ))

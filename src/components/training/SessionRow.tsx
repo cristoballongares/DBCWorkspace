@@ -11,7 +11,7 @@ type SessionData = {
   plannedProblems: number | null;
   actualProblems: number | null;
   notes: string | null;
-  user: { name: string };
+  user: { name: string } | null;
 };
 
 export function SessionRow({ session }: { session: SessionData }) {
@@ -38,7 +38,7 @@ export function SessionRow({ session }: { session: SessionData }) {
 
   return (
     <tr className="border-b border-border-default last:border-b-0 hover:bg-bg-elevated">
-      <td className="px-4 py-2.5 font-medium text-text-primary">{session.user.name}</td>
+      <td className="px-4 py-2.5 font-medium text-text-primary">{session.user?.name ?? "Usuario eliminado"}</td>
       <td className="px-4 py-2.5 text-xs text-text-muted">
         {new Date(session.date).toLocaleDateString()}
       </td>

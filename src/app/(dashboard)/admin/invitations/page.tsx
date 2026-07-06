@@ -14,11 +14,23 @@ type Invitation = {
   expiresAt: string;
 };
 
+type ManagedUser = {
+  id: string;
+  name: string;
+  email: string;
+  role: 'ADMIN' | 'MEMBER';
+  createdAt: string;
+};
+
 export default function InvitationsPage() {
   const [invitations, setInvitations] = useState<Invitation[]>([]);
   const [email, setEmail] = useState('');
   const [role, setRole] = useState<'ADMIN' | 'MEMBER'>('MEMBER');
   const [error, setError] = useState<string | null>(null);
+
+  const [users, setUsers] = useState<ManagedUser[]>([]);
+  const [userError, setUserError] = useState<string | null>(null);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
 
   async function loadInvitations() {
     const response = await fetch('/api/invitations');
@@ -27,9 +39,36 @@ export default function InvitationsPage() {
     }
   }
 
+  async function loadUsers() {
+    const response = await fetch('/api/users');
+    if (response.ok) {
+      setUsers(await response.json());
+    }
+  }
+
   useEffect(() => {
     loadInvitations();
+    loadUsers();
   }, []);
+
+  async function handleDeleteUser(user: ManagedUser) {
+    if (!confirm(`Eliminar a ${user.name}? Esta accion no se puede deshacer.`)) {
+      return;
+    }
+
+    setUserError(null);
+    setDeletingId(user.id);
+    const response = await fetch(`/api/users/${user.id}`, { method: 'DELETE' });
+    setDeletingId(null);
+
+    if (!response.ok) {
+      const body = await response.json().catch(() => null);
+      setUserError(body?.error ?? 'No se pudo eliminar el usuario');
+      return;
+    }
+
+    await loadUsers();
+  }
 
   async function handleSubmit(event: React.FormEvent) {
     event.preventDefault();
@@ -100,6 +139,44 @@ export default function InvitationsPage() {
                   {invitation.acceptedAt
                     ? '-'
                     : `${typeof window !== 'undefined' ? window.location.origin : ''}/invite/${invitation.token}`}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+
+      <h1 className="text-2xl font-semibold text-text-primary">Usuarios</h1>
+
+      {userError && <p className="text-sm text-status-pending">{userError}</p>}
+
+      <div className="overflow-x-auto rounded-md border border-border-default">
+        <table className="w-full text-left text-sm">
+          <thead>
+            <tr className="border-b border-border-default text-xs uppercase tracking-wide text-text-muted">
+              <th className="px-4 py-2.5 font-medium">Nombre</th>
+              <th className="px-4 py-2.5 font-medium">Email</th>
+              <th className="px-4 py-2.5 font-medium">Rol</th>
+              <th className="px-4 py-2.5 font-medium"></th>
+            </tr>
+          </thead>
+          <tbody>
+            {users.map((user) => (
+              <tr
+                key={user.id}
+                className="border-b border-border-default last:border-b-0 hover:bg-bg-elevated"
+              >
+                <td className="px-4 py-2.5 text-text-primary">{user.name}</td>
+                <td className="px-4 py-2.5 text-text-primary">{user.email}</td>
+                <td className="px-4 py-2.5 text-text-primary">{user.role}</td>
+                <td className="px-4 py-2.5 text-right">
+                  <Button
+                    variant="destructive"
+                    onClick={() => handleDeleteUser(user)}
+                    disabled={deletingId === user.id}
+                  >
+                    {deletingId === user.id ? 'Eliminando...' : 'Eliminar'}
+                  </Button>
                 </td>
               </tr>
             ))}

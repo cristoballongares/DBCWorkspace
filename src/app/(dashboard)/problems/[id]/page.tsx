@@ -92,7 +92,7 @@ export default async function ProblemDetailPage({ params }: { params: { id: stri
             
             {editorial ? (
               <div className="space-y-4 rounded-md border border-border-default bg-bg-surface p-6">
-                <p className="text-sm font-semibold text-text-secondary">Escrito por {editorial.author.name}</p>
+                <p className="text-sm font-semibold text-text-secondary">Escrito por {editorial.author?.name ?? "Usuario eliminado"}</p>
                 <div className="prose prose-invert max-w-none prose-pre:bg-bg-elevated prose-pre:border prose-pre:border-border-default">
                   <MarkdownContent source={editorial.content} />
                 </div>

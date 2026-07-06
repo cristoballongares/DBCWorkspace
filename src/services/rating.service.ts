@@ -34,10 +34,11 @@ export async function recalculateRatingForContest(contestId: string) {
 
   for (const cp of contest.problems) {
     const subsByUser = new Map<string, typeof submissions>();
-    for (const s of submissions.filter((s) => s.contestProblemId === cp.id)) {
-      const list = subsByUser.get(s.userId) ?? [];
+    for (const s of submissions.filter((s) => s.contestProblemId === cp.id && s.userId !== null)) {
+      const userId = s.userId as string;
+      const list = subsByUser.get(userId) ?? [];
       list.push(s);
-      subsByUser.set(s.userId, list);
+      subsByUser.set(userId, list);
     }
 
     const solves: SolveInfo[] = [];

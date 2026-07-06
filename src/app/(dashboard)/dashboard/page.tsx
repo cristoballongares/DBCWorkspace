@@ -114,7 +114,8 @@ export default async function DashboardPage() {
                   {data.recentActivity.map((log) => {
                     let iconColor = "text-text-muted";
                     let linkHref = "#";
-                    
+                    const editorName = log.editor?.name ?? "Usuario eliminado";
+
                     if (log.entityType === 'SOLUTION' && log.problem) {
                       linkHref = `/problems/${log.problem.id}`;
                     } else if (log.entityType === 'PROBLEM' && log.problem) {
@@ -132,11 +133,11 @@ export default async function DashboardPage() {
                         className="flex items-center gap-3 p-4 transition-colors hover:bg-bg-elevated"
                       >
                         <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-border-strong text-xs font-bold text-text-primary">
-                          {log.editor.name.charAt(0).toUpperCase()}
+                          {editorName.charAt(0).toUpperCase()}
                         </div>
                         <div className="flex-1 min-w-0">
                           <p className="text-sm text-text-primary">
-                            <span className="font-semibold text-link-focus mr-1">{log.editor.name}</span>
+                            <span className="font-semibold text-link-focus mr-1">{editorName}</span>
                             {log.diffSummary}
                           </p>
                           <p className="text-xs text-text-muted mt-0.5">

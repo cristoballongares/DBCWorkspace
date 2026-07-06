@@ -44,8 +44,8 @@ model PublicTodo {
   completed Boolean  @default(false)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-  authorId  String
-  author    User     @relation(fields: [authorId], references: [id])
+  authorId  String?
+  author    User?    @relation(fields: [authorId], references: [id], onDelete: SetNull)
 }
 
 model Invitation {
@@ -53,8 +53,8 @@ model Invitation {
   email       String
   token       String    @unique
   role        Role      @default(MEMBER)
-  invitedById String
-  invitedBy   User      @relation("InvitedBy", fields: [invitedById], references: [id])
+  invitedById String?
+  invitedBy   User?     @relation("InvitedBy", fields: [invitedById], references: [id], onDelete: SetNull)
   acceptedAt  DateTime?
   expiresAt   DateTime
   createdAt   DateTime  @default(now())
@@ -119,7 +119,7 @@ model ProblemTag {
 model Solution {
   id           String   @id @default(cuid())
   problemId    String
-  authorId     String
+  authorId     String?
   content      String
   reasoning    String?
   timeSpentMin Int?
@@ -128,7 +128,7 @@ model Solution {
   updatedAt    DateTime @updatedAt
 
   problem    Problem     @relation(fields: [problemId], references: [id], onDelete: Cascade)
-  author     User        @relation(fields: [authorId], references: [id])
+  author     User?       @relation(fields: [authorId], references: [id], onDelete: SetNull)
   changeLogs ChangeLog[]
 
   @@index([problemId])
@@ -139,12 +139,12 @@ model Editorial {
   id        String   @id @default(cuid())
   problemId String   @unique
   content   String
-  authorId  String
+  authorId  String?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
   problem    Problem     @relation(fields: [problemId], references: [id], onDelete: Cascade)
-  author     User        @relation(fields: [authorId], references: [id])
+  author     User?       @relation(fields: [authorId], references: [id], onDelete: SetNull)
   changeLogs ChangeLog[]
 
   @@index([problemId])
@@ -207,14 +207,14 @@ model ContestSubmission {
   id               String            @id @default(cuid())
   contestId        String
   contestProblemId String
-  userId           String
+  userId           String?
   verdict          SubmissionVerdict @default(PENDING)
   submittedAt      DateTime          @default(now())
   minutesFromStart Int
 
   contest        Contest        @relation(fields: [contestId], references: [id], onDelete: Cascade)
   contestProblem ContestProblem @relation(fields: [contestProblemId], references: [id], onDelete: Cascade)
-  user           User           @relation(fields: [userId], references: [id])
+  user           User?          @relation(fields: [userId], references: [id], onDelete: SetNull)
 
   @@index([contestId, userId])
   @@index([contestProblemId])
@@ -223,14 +223,14 @@ model ContestSubmission {
 model ContestPostMortem {
   id          String   @id @default(cuid())
   contestId   String   @unique
-  authorId    String
+  authorId    String?
   whatWorked  String?
   whatFailed  String?
   actionItems String?
   createdAt   DateTime @default(now())
 
   contest Contest @relation(fields: [contestId], references: [id], onDelete: Cascade)
-  author  User    @relation(fields: [authorId], references: [id])
+  author  User?   @relation(fields: [authorId], references: [id], onDelete: SetNull)
 }
 
 // Un snapshot por (user, contest) cerrado: percentil de tiempo de resolucion
@@ -238,12 +238,12 @@ model ContestPostMortem {
 // finalizar un contest; no es un rating Elo incremental.
 model RatingSnapshot {
   id        String   @id @default(cuid())
-  userId    String
+  userId    String?
   contestId String
   value     Float
   createdAt DateTime @default(now())
 
-  user    User    @relation(fields: [userId], references: [id])
+  user    User?   @relation(fields: [userId], references: [id], onDelete: SetNull)
   contest Contest @relation(fields: [contestId], references: [id], onDelete: Cascade)
 
   @@unique([userId, contestId])
@@ -266,14 +266,14 @@ model TrainingCalendar {
 model TrainingSession {
   id              String   @id @default(cuid())
   calendarId      String
-  userId          String
+  userId          String?
   date            DateTime
   plannedProblems Int?
   actualProblems  Int?
   notes           String?
 
   calendar TrainingCalendar @relation(fields: [calendarId], references: [id], onDelete: Cascade)
-  user     User             @relation(fields: [userId], references: [id])
+  user     User?            @relation(fields: [userId], references: [id], onDelete: SetNull)
 
   @@index([calendarId])
   @@index([userId, date])
@@ -288,13 +288,13 @@ model NotebookEntry {
   category       String
   content        String
   commonPitfalls String?
-  authorId       String
+  authorId       String?
   parentId       String?
   order          Int      @default(0)
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
 
-  author     User            @relation(fields: [authorId], references: [id])
+  author     User?           @relation(fields: [authorId], references: [id], onDelete: SetNull)
   changeLogs ChangeLog[]
   exercises  TopicProblem[]
   parent     NotebookEntry?  @relation("TopicChildren", fields: [parentId], references: [id], onDelete: Cascade)
@@ -326,16 +326,17 @@ enum ChangeLogEntity {
   EDITORIAL
   NOTEBOOK_ENTRY
   CONTEST
+  USER
 }
 
 model ChangeLog {
   id          String          @id @default(cuid())
   entityType  ChangeLogEntity
-  editorId    String
+  editorId    String?
   diffSummary String
   createdAt   DateTime        @default(now())
 
-  editor User @relation(fields: [editorId], references: [id])
+  editor User? @relation(fields: [editorId], references: [id], onDelete: SetNull)
 
   problemId String?
   problem   Problem? @relation(fields: [problemId], references: [id], onDelete: Cascade)

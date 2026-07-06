@@ -9,7 +9,7 @@ type SolutionCardData = {
   reasoning: string | null;
   timeSpentMin: number | null;
   attemptCount: number;
-  author: { id: string; name: string };
+  author: { id: string; name: string } | null;
 };
 
 export function SolutionCard({ solution }: { solution: SolutionCardData }) {
@@ -17,7 +17,7 @@ export function SolutionCard({ solution }: { solution: SolutionCardData }) {
     <div className="space-y-3 rounded-md border border-border-default bg-bg-surface p-4">
       <div className="flex items-center justify-between">
         <div className="text-sm text-text-secondary">
-          <span className="font-medium text-text-primary">{solution.author.name}</span>
+          <span className="font-medium text-text-primary">{solution.author?.name ?? "Usuario eliminado"}</span>
           {' · '}
           {solution.attemptCount} intento{solution.attemptCount === 1 ? '' : 's'}
           {solution.timeSpentMin ? ` · ${solution.timeSpentMin} min` : ''}
