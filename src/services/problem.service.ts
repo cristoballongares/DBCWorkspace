@@ -31,19 +31,45 @@ export type ProblemFilters = {
   tag?: string;
   difficulty?: string;
   status?: string;
+  page?: number;
+  pageSize?: number;
 };
 
+function buildProblemWhere(filters: Pick<ProblemFilters, 'q' | 'tag' | 'difficulty' | 'status'>) {
+  return {
+    title: filters.q ? { contains: filters.q, mode: 'insensitive' as const } : undefined,
+    difficulty: filters.difficulty ? (filters.difficulty as Difficulty) : undefined,
+    status: filters.status ? (filters.status as ProblemStatus) : undefined,
+    tags: filters.tag ? { some: { tag: { name: filters.tag } } } : undefined,
+  };
+}
+
 export async function listProblems(filters: ProblemFilters = {}) {
+  const { page, pageSize } = filters;
   return prisma.problem.findMany({
-    where: {
-      title: filters.q ? { contains: filters.q, mode: 'insensitive' } : undefined,
-      difficulty: filters.difficulty ? (filters.difficulty as Difficulty) : undefined,
-      status: filters.status ? (filters.status as ProblemStatus) : undefined,
-      tags: filters.tag ? { some: { tag: { name: filters.tag } } } : undefined,
-    },
+    where: buildProblemWhere(filters),
     include: problemInclude,
     orderBy: { createdAt: 'desc' },
+    ...(page && pageSize ? { skip: (page - 1) * pageSize, take: pageSize } : {}),
   });
+}
+
+export async function countProblems(filters: ProblemFilters = {}) {
+  return prisma.problem.count({ where: buildProblemWhere(filters) });
+}
+
+export async function getRandomProblem(filters: { tag?: string; difficulty?: string; onlyUnsolved?: boolean }) {
+  const where = buildProblemWhere({
+    tag: filters.tag,
+    difficulty: filters.difficulty,
+    status: filters.onlyUnsolved ? 'UNSOLVED' : undefined,
+  });
+
+  const candidates = await prisma.problem.findMany({ where, select: { id: true } });
+  const chosen = candidates[Math.floor(Math.random() * candidates.length)];
+  if (!chosen) return null;
+
+  return getProblem(chosen.id);
 }
 
 export async function listTags() {

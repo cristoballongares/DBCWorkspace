@@ -17,7 +17,7 @@ import {
   SidebarMenuItem,
   useSidebar,
 } from '@/components/ui/sidebar';
-import { LayoutDashboard, BookOpen, Trophy, Dumbbell, Tags, Users, Key, LogOut } from 'lucide-react';
+import { LayoutDashboard, BookOpen, Shuffle, Trophy, Dumbbell, Tags, Users, Key, LogOut } from 'lucide-react';
 import { ThemeSwitcher } from '@/components/ThemeSwitcher';
 
 type NavItem = {
@@ -33,6 +33,7 @@ export function DashboardNav({ role }: { role: Role }) {
   const items: NavItem[] = [
     { href: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
     { href: '/problems', label: 'Problemas', icon: BookOpen },
+    { href: '/practice', label: 'Práctica', icon: Shuffle },
     { href: '/contests', label: 'Contests', icon: Trophy },
     { href: '/training', label: 'Entrenamiento', icon: Dumbbell },
     { href: '/topics', label: 'Temas', icon: Tags },

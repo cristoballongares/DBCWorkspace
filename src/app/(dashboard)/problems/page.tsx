@@ -1,20 +1,25 @@
 import { Suspense } from 'react';
 import Link from 'next/link';
-import { listProblems, listTags } from '@/services/problem.service';
+import { countProblems, listProblems, listTags } from '@/services/problem.service';
 import { StatusBadge } from '@/components/problems/StatusBadge';
 import { DifficultyBadge } from '@/components/problems/DifficultyBadge';
 import { TagPill } from '@/components/problems/TagPill';
 import { Button } from '@/components/ui/Button';
 import { TableFilters } from '@/components/problems/TableFilters';
+import { ProblemsPagination } from '@/components/problems/ProblemsPagination';
+
+const PAGE_SIZE = 25;
 
 export default async function ProblemsPage({
   searchParams,
 }: {
-  searchParams: { q?: string; tag?: string; difficulty?: string; status?: string };
+  searchParams: { q?: string; tag?: string; difficulty?: string; status?: string; page?: string };
 }) {
   const { q, tag, difficulty, status } = searchParams;
-  const [problems, tags] = await Promise.all([
-    listProblems({ q, tag, difficulty, status }),
+  const page = Math.max(1, Number(searchParams.page) || 1);
+  const [problems, total, tags] = await Promise.all([
+    listProblems({ q, tag, difficulty, status, page, pageSize: PAGE_SIZE }),
+    countProblems({ q, tag, difficulty, status }),
     listTags(),
   ]);
 
@@ -86,6 +91,8 @@ export default async function ProblemsPage({
           </table>
         </div>
       )}
+
+      <ProblemsPagination total={total} pageSize={PAGE_SIZE} />
     </div>
   );
 }
