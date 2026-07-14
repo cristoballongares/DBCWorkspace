@@ -32,7 +32,9 @@ type Group = {
 type Session = {
   endAt: number;
   durationMin: number;
+  hideTags: boolean;
   groups: Group[];
+  problems: RandomProblem[];
   solvedIds: string[];
 };
 
@@ -53,6 +55,10 @@ function bucketLabel(group: Group) {
   return parts.join(' · ');
 }
 
+function shuffle<T>(items: T[]) {
+  return [...items].sort(() => Math.random() - 0.5);
+}
+
 function formatTime(ms: number) {
   const totalSeconds = Math.max(0, Math.floor(ms / 1000));
   const h = Math.floor(totalSeconds / 3600);
@@ -62,6 +68,53 @@ function formatTime(ms: number) {
   return h > 0 ? `${h}:${pad(m)}:${pad(s)}` : `${pad(m)}:${pad(s)}`;
 }
 
+function ProblemRow({
+  problem,
+  hideTags,
+  onMarkSolved,
+}: {
+  problem: RandomProblem;
+  hideTags: boolean;
+  onMarkSolved: (id: string) => void;
+}) {
+  return (
+    <div className="flex flex-wrap items-center justify-between gap-3 rounded-md border border-border-default bg-bg-surface p-3">
+      <div className="space-y-1">
+        <p className="font-medium text-text-primary">{problem.title}</p>
+        {problem.source && <p className="text-xs text-text-muted">{problem.source}</p>}
+        {!hideTags && (
+          <div className="flex flex-wrap gap-1">
+            {problem.tags.map(({ tag: t }) => (
+              <TagPill key={t.id} name={t.name} />
+            ))}
+          </div>
+        )}
+      </div>
+      <div className="flex items-center gap-2">
+        <StatusBadge status={problem.status} />
+        <DifficultyBadge difficulty={problem.difficulty} />
+        {problem.url && (
+          <a href={problem.url} target="_blank" rel="noopener noreferrer">
+            <Button type="button" variant="secondary" className="bg-bg-elevated text-text-primary hover:bg-border-strong border-border-strong">
+              Enunciado
+            </Button>
+          </a>
+        )}
+        <Link href={`/problems/${problem.id}`}>
+          <Button type="button" variant="secondary" className="bg-bg-elevated text-text-primary hover:bg-border-strong border-border-strong">
+            Detalle
+          </Button>
+        </Link>
+        {problem.status === 'UNSOLVED' && (
+          <Button type="button" onClick={() => onMarkSolved(problem.id)}>
+            Marcar resuelto
+          </Button>
+        )}
+      </div>
+    </div>
+  );
+}
+
 export function ContestSimulationPanel({ tags }: { tags: { id: string; name: string }[] }) {
   const [hydrated, setHydrated] = useState(false);
   const [session, setSession] = useState<Session | null>(null);
@@ -69,6 +122,7 @@ export function ContestSimulationPanel({ tags }: { tags: { id: string; name: str
 
   const [durationMin, setDurationMin] = useState(120);
   const [buckets, setBuckets] = useState<BucketRow[]>([emptyBucket()]);
+  const [hideTags, setHideTags] = useState(true);
   const [starting, setStarting] = useState(false);
   const [warnings, setWarnings] = useState<string[]>([]);
 
@@ -138,10 +192,14 @@ export function ContestSimulationPanel({ tags }: { tags: { id: string; name: str
       .map((g) => `Solo se encontraron ${g.problems.length} de ${g.requested} pedidos para "${bucketLabel(g)}".`);
     setWarnings(shortfalls);
 
+    const flat = groups.flatMap((g) => g.problems);
+
     persist({
       endAt: Date.now() + durationMin * 60_000,
       durationMin,
+      hideTags,
       groups,
+      problems: hideTags ? shuffle(flat) : flat,
       solvedIds: [],
     });
   }
@@ -155,13 +213,14 @@ export function ContestSimulationPanel({ tags }: { tags: { id: string; name: str
     });
 
     if (response.ok) {
+      const markResolved = (p: RandomProblem) =>
+        p.id === problemId ? { ...p, status: 'SOLVED_INDIVIDUAL' as const } : p;
+
       persist({
         ...session,
         solvedIds: [...session.solvedIds, problemId],
-        groups: session.groups.map((g) => ({
-          ...g,
-          problems: g.problems.map((p) => (p.id === problemId ? { ...p, status: 'SOLVED_INDIVIDUAL' as const } : p)),
-        })),
+        problems: session.problems.map(markResolved),
+        groups: session.groups.map((g) => ({ ...g, problems: g.problems.map(markResolved) })),
       });
     }
   }
@@ -178,7 +237,7 @@ export function ContestSimulationPanel({ tags }: { tags: { id: string; name: str
   if (session) {
     const remainingMs = session.endAt - now;
     const finished = remainingMs <= 0;
-    const totalProblems = session.groups.reduce((acc, g) => acc + g.problems.length, 0);
+    const totalProblems = session.problems.length;
 
     return (
       <div className="space-y-4">
@@ -210,50 +269,24 @@ export function ContestSimulationPanel({ tags }: { tags: { id: string; name: str
           </div>
         )}
 
-        {session.groups.map((group, idx) => (
-          <div key={idx} className="space-y-2">
-            <h3 className="text-sm font-medium text-text-secondary">{bucketLabel(group)}</h3>
-            <div className="space-y-2">
-              {group.problems.map((problem) => (
-                <div
-                  key={problem.id}
-                  className="flex flex-wrap items-center justify-between gap-3 rounded-md border border-border-default bg-bg-surface p-3"
-                >
-                  <div className="space-y-1">
-                    <p className="font-medium text-text-primary">{problem.title}</p>
-                    {problem.source && <p className="text-xs text-text-muted">{problem.source}</p>}
-                    <div className="flex flex-wrap gap-1">
-                      {problem.tags.map(({ tag: t }) => (
-                        <TagPill key={t.id} name={t.name} />
-                      ))}
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <StatusBadge status={problem.status} />
-                    <DifficultyBadge difficulty={problem.difficulty} />
-                    {problem.url && (
-                      <a href={problem.url} target="_blank" rel="noopener noreferrer">
-                        <Button type="button" variant="secondary" className="bg-bg-elevated text-text-primary hover:bg-border-strong border-border-strong">
-                          Enunciado
-                        </Button>
-                      </a>
-                    )}
-                    <Link href={`/problems/${problem.id}`}>
-                      <Button type="button" variant="secondary" className="bg-bg-elevated text-text-primary hover:bg-border-strong border-border-strong">
-                        Detalle
-                      </Button>
-                    </Link>
-                    {problem.status === 'UNSOLVED' && (
-                      <Button type="button" onClick={() => markSolved(problem.id)}>
-                        Marcar resuelto
-                      </Button>
-                    )}
-                  </div>
-                </div>
-              ))}
-            </div>
+        {session.hideTags ? (
+          <div className="space-y-2">
+            {session.problems.map((problem) => (
+              <ProblemRow key={problem.id} problem={problem} hideTags onMarkSolved={markSolved} />
+            ))}
           </div>
-        ))}
+        ) : (
+          session.groups.map((group, idx) => (
+            <div key={idx} className="space-y-2">
+              <h3 className="text-sm font-medium text-text-secondary">{bucketLabel(group)}</h3>
+              <div className="space-y-2">
+                {group.problems.map((problem) => (
+                  <ProblemRow key={problem.id} problem={problem} hideTags={false} onMarkSolved={markSolved} />
+                ))}
+              </div>
+            </div>
+          ))
+        )}
       </div>
     );
   }
@@ -338,6 +371,21 @@ export function ContestSimulationPanel({ tags }: { tags: { id: string; name: str
             </div>
           ))}
         </div>
+
+        <label className="flex cursor-pointer items-start gap-2 text-sm text-text-primary">
+          <input
+            type="checkbox"
+            checked={hideTags}
+            onChange={(e) => setHideTags(e.target.checked)}
+            className="mt-0.5"
+          />
+          <span>
+            Ocultar tags y mezclar problemas (simular contest real)
+            <span className="block text-xs text-text-muted">
+              Sin esto, ver los grupos y sus etiquetas revela de qué tema es cada problema.
+            </span>
+          </span>
+        </label>
 
         <div className="flex flex-wrap items-center gap-3 pt-2">
           <Button type="button" variant="secondary" className="bg-bg-elevated text-text-primary hover:bg-border-strong border-border-strong" onClick={addBucket}>
