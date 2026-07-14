@@ -72,6 +72,48 @@ export async function getRandomProblem(filters: { tag?: string; difficulty?: str
   return getProblem(chosen.id);
 }
 
+export type RandomBatchBucket = {
+  tag?: string;
+  difficulty?: string;
+  onlyUnsolved?: boolean;
+  count: number;
+};
+
+export async function getRandomProblemsBatch(buckets: RandomBatchBucket[]) {
+  const usedIds = new Set<string>();
+  const groups = [];
+
+  for (const bucket of buckets) {
+    const where = buildProblemWhere({
+      tag: bucket.tag,
+      difficulty: bucket.difficulty,
+      status: bucket.onlyUnsolved ? 'UNSOLVED' : undefined,
+    });
+
+    const candidates = await prisma.problem.findMany({ where, select: { id: true } });
+    const available = candidates.filter((c) => !usedIds.has(c.id));
+    const chosenIds = available
+      .sort(() => Math.random() - 0.5)
+      .slice(0, bucket.count)
+      .map((c) => c.id);
+
+    chosenIds.forEach((id) => usedIds.add(id));
+
+    const problems = chosenIds.length
+      ? await prisma.problem.findMany({ where: { id: { in: chosenIds } }, include: problemInclude })
+      : [];
+
+    groups.push({
+      requested: bucket.count,
+      tag: bucket.tag,
+      difficulty: bucket.difficulty,
+      problems,
+    });
+  }
+
+  return groups;
+}
+
 export async function listTags() {
   return prisma.tag.findMany({ orderBy: { name: 'asc' } });
 }

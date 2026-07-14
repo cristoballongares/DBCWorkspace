@@ -14,3 +14,17 @@ export const createProblemSchema = z.object({
 });
 
 export const updateProblemSchema = createProblemSchema.partial();
+
+export const randomBatchSchema = z.object({
+  buckets: z
+    .array(
+      z.object({
+        tag: z.string().optional(),
+        difficulty: difficultyEnum.optional(),
+        onlyUnsolved: z.boolean().optional(),
+        count: z.number().int().min(1).max(20),
+      }),
+    )
+    .min(1)
+    .max(10),
+});
