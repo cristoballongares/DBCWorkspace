@@ -12,7 +12,8 @@
     "prisma:generate": "prisma generate",
     "prisma:migrate": "prisma migrate dev",
     "prisma:seed": "tsx prisma/seed.ts",
-    "prisma:seed-books": "tsx prisma/seed-books.ts"
+    "prisma:seed-books": "tsx prisma/seed-books.ts",
+    "prisma:seed-problems": "tsx prisma/seed-problems.ts"
   },
   "prisma": {
     "seed": "tsx prisma/seed.ts"
