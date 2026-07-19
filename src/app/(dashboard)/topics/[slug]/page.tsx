@@ -2,7 +2,6 @@ import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { getTopicBySlug } from '@/services/topic.service';
 import { MarkdownContent } from '@/components/editor/MarkdownContent';
-import { DifficultyBadge } from '@/components/problems/DifficultyBadge';
 import { DeleteTopicButton } from '@/components/topics/DeleteTopicButton';
 import { Button } from '@/components/ui/Button';
 import { Breadcrumbs } from '@/components/ui/Breadcrumbs';
@@ -114,9 +113,6 @@ export default async function TopicDetailPage({ params }: { params: { slug: stri
                       >
                         {exercise.problem.title}
                       </Link>
-                    </td>
-                    <td className="px-4 py-2.5">
-                      <DifficultyBadge difficulty={exercise.problem.difficulty} />
                     </td>
                   </tr>
                 ))}

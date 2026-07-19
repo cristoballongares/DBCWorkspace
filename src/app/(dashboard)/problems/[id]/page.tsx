@@ -4,7 +4,6 @@ import { getProblem } from '@/services/problem.service';
 import { listSolutionsByProblem } from '@/services/solution.service';
 import { getEditorialByProblem } from '@/services/editorial.service';
 import { StatusBadge } from '@/components/problems/StatusBadge';
-import { DifficultyBadge } from '@/components/problems/DifficultyBadge';
 import { TagPill } from '@/components/problems/TagPill';
 import { Button } from '@/components/ui/Button';
 import { DeleteProblemButton } from '@/components/problems/DeleteProblemButton';
@@ -40,7 +39,6 @@ export default async function ProblemDetailPage({ params }: { params: { id: stri
         </div>
 
         <div className="mt-3 flex items-center gap-2">
-          <DifficultyBadge difficulty={problem.difficulty} />
           <StatusBadge status={problem.status} />
           {problem.source && <span className="text-sm text-text-muted">{problem.source}</span>}
         </div>

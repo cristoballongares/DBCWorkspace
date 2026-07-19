@@ -5,7 +5,6 @@ import Link from 'next/link';
 import type { Difficulty, ProblemStatus } from '@prisma/client';
 import { Select } from '@/components/ui/Select';
 import { Button } from '@/components/ui/Button';
-import { DifficultyBadge } from '@/components/problems/DifficultyBadge';
 import { StatusBadge } from '@/components/problems/StatusBadge';
 import { TagPill } from '@/components/problems/TagPill';
 
@@ -118,7 +117,6 @@ export function PracticePanel({ tags }: { tags: { id: string; name: string }[] }
             </div>
             <div className="flex items-center gap-2">
               <StatusBadge status={problem.status} />
-              <DifficultyBadge difficulty={problem.difficulty} />
             </div>
           </div>
 

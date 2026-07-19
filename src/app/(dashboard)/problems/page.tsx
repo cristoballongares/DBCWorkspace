@@ -2,7 +2,6 @@ import { Suspense } from 'react';
 import Link from 'next/link';
 import { countProblems, listProblems, listTags } from '@/services/problem.service';
 import { StatusBadge } from '@/components/problems/StatusBadge';
-import { DifficultyBadge } from '@/components/problems/DifficultyBadge';
 import { TagPill } from '@/components/problems/TagPill';
 import { Button } from '@/components/ui/Button';
 import { TableFilters } from '@/components/problems/TableFilters';
@@ -45,7 +44,6 @@ export default async function ProblemsPage({
               <tr className="text-xs uppercase tracking-wider text-text-muted">
                 <th className="px-4 py-2 font-medium text-center w-20">Estado</th>
                 <th className="px-4 py-2 font-medium text-left">Titulo</th>
-                <th className="px-4 py-2 font-medium text-center w-24">Dificultad</th>
                 <th className="px-4 py-2 font-medium text-left">Fuente</th>
                 <th className="px-4 py-2 font-medium text-left">Tags</th>
                 <th className="px-4 py-2 font-medium text-right w-24">Soluciones</th>
@@ -68,9 +66,6 @@ export default async function ProblemsPage({
                     >
                       {problem.title}
                     </Link>
-                  </td>
-                  <td className="px-4 py-1.5 text-center">
-                    <DifficultyBadge difficulty={problem.difficulty} />
                   </td>
                   <td className="px-4 py-1.5 text-xs text-text-muted truncate max-w-[120px]">
                     {problem.source ?? '-'}

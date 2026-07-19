@@ -6,7 +6,6 @@ import type { Difficulty, ProblemStatus } from '@prisma/client';
 import { Select } from '@/components/ui/Select';
 import { Input } from '@/components/ui/Input';
 import { Button } from '@/components/ui/Button';
-import { DifficultyBadge } from '@/components/problems/DifficultyBadge';
 import { StatusBadge } from '@/components/problems/StatusBadge';
 import { TagPill } from '@/components/problems/TagPill';
 
@@ -92,7 +91,6 @@ function ProblemRow({
       </div>
       <div className="flex items-center gap-2">
         <StatusBadge status={problem.status} />
-        <DifficultyBadge difficulty={problem.difficulty} />
         {problem.url && (
           <a href={problem.url} target="_blank" rel="noopener noreferrer">
             <Button type="button" variant="secondary" className="bg-bg-elevated text-text-primary hover:bg-border-strong border-border-strong">

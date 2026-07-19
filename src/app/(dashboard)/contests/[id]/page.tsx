@@ -4,7 +4,6 @@ import { getContest } from '@/services/contest.service';
 import { ContestStatusBadge } from '@/components/contests/ContestStatusBadge';
 import { ContestStatusButton } from '@/components/contests/ContestStatusButton';
 import { DeleteContestButton } from '@/components/contests/DeleteContestButton';
-import { DifficultyBadge } from '@/components/problems/DifficultyBadge';
 import { Button } from '@/components/ui/Button';
 import { Breadcrumbs } from '@/components/ui/Breadcrumbs';
 
@@ -52,7 +51,6 @@ export default async function ContestDetailPage({ params }: { params: { id: stri
               <tr className="border-b border-border-default text-xs uppercase tracking-wide text-text-muted">
                 <th className="px-4 py-2.5 font-medium">Label</th>
                 <th className="px-4 py-2.5 font-medium">Problema</th>
-                <th className="px-4 py-2.5 font-medium">Dificultad</th>
               </tr>
             </thead>
             <tbody>
@@ -66,9 +64,6 @@ export default async function ContestDetailPage({ params }: { params: { id: stri
                     >
                       {cp.problem.title}
                     </Link>
-                  </td>
-                  <td className="px-4 py-2.5">
-                    <DifficultyBadge difficulty={cp.problem.difficulty} />
                   </td>
                 </tr>
               ))}
